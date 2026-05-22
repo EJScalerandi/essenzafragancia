@@ -2,32 +2,34 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link as RouterLink, useSearchParams } from "react-router-dom";
 
-import Grid from "@mui/material/Grid";
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardActionArea from "@mui/material/CardActionArea";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
-import Stack from "@mui/material/Stack";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import TextField from "@mui/material/TextField";
-import InputAdornment from "@mui/material/InputAdornment";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
+import InputAdornment from "@mui/material/InputAdornment";
 import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Pagination from "@mui/material/Pagination";
-import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import Select from "@mui/material/Select";
+import Snackbar from "@mui/material/Snackbar";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 
 import SearchIcon from "@mui/icons-material/Search";
 
 import { useCart } from "../context/CartContext.jsx";
 import { useProducts } from "../hooks/useProducts.js";
-import { getMinPrice, getPriceLabel } from "../utils/pricing.js";
+import { getMinPrice } from "../utils/pricing.js";
 
 const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -35,13 +37,19 @@ const money = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0,
 });
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 
 function tagColor(tag) {
   if (tag === "Oferta") return "error";
   if (tag === "Nuevo") return "success";
   if (tag === "Destacado") return "secondary";
   return "default";
+}
+
+function hasStock(product) {
+  const variants = Array.isArray(product?.variants) ? product.variants : [];
+  if (!variants.length) return true;
+  return variants.some((variant) => Number(variant.stock || 0) > 0);
 }
 
 export default function Products() {
@@ -55,10 +63,9 @@ export default function Products() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("Todas");
   const [tag, setTag] = useState("Todos");
-  const [sort, setSort] = useState("relevance"); // relevance | price_asc | price_desc | name_asc
+  const [sort, setSort] = useState("relevance");
   const [page, setPage] = useState(1);
 
-  // URL -> State (al entrar desde Home)
   useEffect(() => {
     const q0 = searchParams.get("q") ?? "";
     const cat0 = searchParams.get("cat") ?? "Todas";
@@ -114,6 +121,9 @@ export default function Products() {
       case "name_asc":
         out.sort((a, b) => a.name.localeCompare(b.name));
         break;
+      case "stock_first":
+        out.sort((a, b) => Number(hasStock(b)) - Number(hasStock(a)));
+        break;
       case "relevance":
       default:
         break;
@@ -124,7 +134,6 @@ export default function Products() {
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
 
-  // Clamp page
   useEffect(() => {
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
@@ -134,19 +143,14 @@ export default function Products() {
     return filtered.slice(start, start + PAGE_SIZE);
   }, [filtered, page]);
 
-  // State -> URL (sincronizar URL)
   useEffect(() => {
     const next = new URLSearchParams();
-
     const q = query.trim();
+
     if (q) next.set("q", q);
-
     if (category && category !== "Todas") next.set("cat", category);
-
     if (tag && tag !== "Todos") next.set("tag", tag);
-
     if (sort && sort !== "relevance") next.set("sort", sort);
-
     if (page && page > 1) next.set("page", String(page));
 
     const currentStr = searchParams.toString();
@@ -156,20 +160,24 @@ export default function Products() {
     }
   }, [query, category, tag, sort, page, searchParams, setSearchParams]);
 
-  const handleAdd = (p) => {
-    addItem(p); // default: primera variante
-    setSnackMsg(`Agregado: ${p.name}`);
+  const handleAdd = (product) => {
+    if (!hasStock(product)) return;
+    addItem(product);
+    setSnackMsg(`Agregado: ${product.name}`);
     setSnackOpen(true);
   };
 
   return (
     <section>
       <Stack spacing={2} sx={{ mb: 2 }}>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>
-          Productos
+        <Typography variant="h4" sx={{ fontWeight: 950, letterSpacing: "-0.04em" }}>
+          Perfumes
         </Typography>
 
-        {/* Barra de búsqueda + orden */}
+        <Typography color="text.secondary">
+          Catálogo de fragancias diseñador, árabes, nicho y decants.
+        </Typography>
+
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems={{ sm: "center" }}>
           <TextField
             value={query}
@@ -177,7 +185,7 @@ export default function Products() {
               setQuery(e.target.value);
               setPage(1);
             }}
-            placeholder="Buscar (nombre, descripción, categoría, tags)..."
+            placeholder="Buscar perfume, marca, categoría o tag..."
             fullWidth
             InputProps={{
               startAdornment: (
@@ -200,6 +208,7 @@ export default function Products() {
               }}
             >
               <MenuItem value="relevance">Relevancia</MenuItem>
+              <MenuItem value="stock_first">Con stock primero</MenuItem>
               <MenuItem value="price_asc">Precio: menor a mayor</MenuItem>
               <MenuItem value="price_desc">Precio: mayor a menor</MenuItem>
               <MenuItem value="name_asc">Nombre: A → Z</MenuItem>
@@ -207,7 +216,6 @@ export default function Products() {
           </FormControl>
         </Stack>
 
-        {/* Chips categorías */}
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {categories.map((c) => (
             <Chip
@@ -225,7 +233,6 @@ export default function Products() {
           ))}
         </Stack>
 
-        {/* Chips tags */}
         <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
           {tags.map((t) => (
             <Chip
@@ -250,62 +257,88 @@ export default function Products() {
         </Typography>
       </Stack>
 
-      {/* Grid */}
       <Grid container spacing={2}>
-        {paginated.map((p) => (
-          <Grid item xs={12} sm={6} md={4} key={p.id}>
-            <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              <CardActionArea component={RouterLink} to={`/products/${p.id}`}>
-                <CardMedia component="img" height="180" image={p.image} alt={p.name} />
-                <CardContent>
-                  <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
-                    <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-                      <Chip size="small" label={p.category} />
+        {paginated.map((p) => {
+          const outOfStock = !hasStock(p);
+          const price = getMinPrice(p);
+          const compareAtPrice = Number(p.compareAtPrice || p.variants?.[0]?.compareAtPrice || 0);
+          const transferPrice = Number(p.transferPrice || 0);
+
+          return (
+            <Grid item xs={12} sm={6} md={4} key={p.id}>
+              <Card sx={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                <CardActionArea component={RouterLink} to={`/products/${p.id}`}>
+                  <Box sx={{ position: "relative" }}>
+                    <CardMedia component="img" height="230" image={p.image} alt={p.name} sx={{ bgcolor: "#f4eadb" }} />
+                    <Stack direction="row" spacing={0.75} sx={{ position: "absolute", top: 12, left: 12, flexWrap: "wrap" }}>
                       {(p.tags ?? []).slice(0, 2).map((t) => (
                         <Chip key={t} size="small" label={t} color={tagColor(t)} />
                       ))}
+                      {outOfStock ? <Chip size="small" label="Sin stock" /> : null}
+                    </Stack>
+                  </Box>
+
+                  <CardContent>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 1 }} gap={1}>
+                      <Chip size="small" label={p.category} variant="outlined" />
+                      <Stack alignItems="flex-end" sx={{ flexShrink: 0 }}>
+                        {compareAtPrice > price ? (
+                          <Typography variant="caption" color="text.secondary" sx={{ textDecoration: "line-through", fontWeight: 800 }}>
+                            {money.format(compareAtPrice)}
+                          </Typography>
+                        ) : null}
+                        <Typography sx={{ fontWeight: 950 }}>
+                          {money.format(price)}
+                        </Typography>
+                      </Stack>
                     </Stack>
 
-                    <Typography sx={{ fontWeight: 800 }}>
-                      {getPriceLabel(p)} {money.format(getMinPrice(p))}
+                    <Typography variant="h6" sx={{ fontWeight: 950, lineHeight: 1.12 }}>
+                      {p.name}
                     </Typography>
-                  </Stack>
 
-                  <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                    {p.name}
-                  </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      {p.description}
+                    </Typography>
 
-                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                    {p.description}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
+                    {transferPrice > 0 ? (
+                      <Paper variant="outlined" sx={{ mt: 1.5, p: 1, bgcolor: "rgba(200,164,93,0.10)", borderColor: "rgba(200,164,93,0.34)" }}>
+                        <Typography variant="caption" sx={{ display: "block", fontWeight: 900 }}>
+                          Transferencia o depósito: {money.format(transferPrice)}
+                        </Typography>
+                        {p.installments ? (
+                          <Typography variant="caption" color="text.secondary">
+                            {p.installments}
+                          </Typography>
+                        ) : null}
+                      </Paper>
+                    ) : null}
+                  </CardContent>
+                </CardActionArea>
 
-              <CardActions sx={{ px: 2, pb: 2, mt: "auto" }}>
-                <Button variant="contained" fullWidth onClick={() => handleAdd(p)}>
-                  Agregar al carrito
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
+                <CardActions sx={{ px: 2, pb: 2, mt: "auto" }}>
+                  <Button variant="contained" fullWidth disabled={outOfStock} onClick={() => handleAdd(p)}>
+                    {outOfStock ? "Sin stock" : "Agregar al carrito"}
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
-      {/* Sin resultados */}
       {filtered.length === 0 && (
         <Typography sx={{ mt: 3 }} color="text.secondary">
           No hay productos que coincidan con tu búsqueda.
         </Typography>
       )}
 
-      {/* Paginación */}
       {filtered.length > 0 && (
         <Stack alignItems="center" sx={{ mt: 3 }}>
           <Pagination count={totalPages} page={page} onChange={(_, v) => setPage(v)} color="primary" />
         </Stack>
       )}
 
-      {/* Snackbar */}
       <Snackbar
         open={snackOpen}
         autoHideDuration={2000}

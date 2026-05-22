@@ -2,10 +2,10 @@ const { query, withClient } = require('./postgres');
 const { seedProducts, seedStore } = require('./seedData');
 
 const DEFAULT_HOME_IMAGES = [
-  { id: 'hero-active-set', title: 'Set Active Essential', fileName: 'active-set.png', url: '/products/active-set.png', enabled: true, sortOrder: 1, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-windbreaker', title: 'Campera Rompeviento Aura', fileName: 'windbreaker.png', url: '/products/windbreaker.png', enabled: true, sortOrder: 2, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-hoodie-set', title: 'Hoodie Set Comfort', fileName: 'hoodie-set.png', url: '/products/hoodie-set.png', enabled: true, sortOrder: 3, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-basic-tee', title: 'Remera Motion Basic', fileName: 'basic-tee.png', url: '/products/basic-tee.png', enabled: true, sortOrder: 4, uploadedAt: '2026-05-04T00:00:00.000Z' },
+  { id: 'hero-hawas-malibu', title: 'HAWAS MALIBU', fileName: 'hawas-malibu.svg', url: '/products/hawas-malibu.svg', enabled: true, sortOrder: 1, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-yara-candy', title: 'YARA CANDY', fileName: 'yara-candy.svg', url: '/products/yara-candy.svg', enabled: true, sortOrder: 2, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-the-most-wanted', title: 'The Most Wanted Azzaro 100ML', fileName: 'the-most-wanted-azzaro.svg', url: '/products/the-most-wanted-azzaro.svg', enabled: true, sortOrder: 3, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-combo-decants', title: 'COMBO 5 DECANTS DE 5ML', fileName: 'combo-5-decants-5ml.svg', url: '/products/combo-5-decants-5ml.svg', enabled: true, sortOrder: 4, uploadedAt: '2026-05-22T00:00:00.000Z' },
 ];
 
 async function ensureProductImageUploadColumns() {
@@ -57,12 +57,12 @@ async function ensurePaymentColumns() {
       add column if not exists bank_transfer_bank_name text not null default '',
       add column if not exists bank_transfer_alias text not null default '',
       add column if not exists bank_transfer_cbu text not null default '',
-      add column if not exists bank_transfer_cuit text not null default '',
+      add column if not exists bank_transfer_cuit text not null default '20462263970',
       add column if not exists bank_transfer_instructions text not null default
-        'Las transferencias bancarias pueden demorar un poco debido a que se debe conciliar el pago. Recibirás un correo cuando se haya realizado.',
+        'Con transferencia o depósito tenés precio especial. Coordinamos la acreditación y el envío por WhatsApp.',
       add column if not exists contact_instagram_url text not null default '',
       add column if not exists contact_facebook_url text not null default '',
-      add column if not exists contact_whatsapp_number text not null default '',
+      add column if not exists contact_whatsapp_number text not null default '543572585775',
       add column if not exists contact_address_text text not null default '',
       add column if not exists contact_address_url text not null default ''
   `);
@@ -175,10 +175,20 @@ async function ensureDatabase() {
 async function seedIfEmpty() {
   await withClient(async (client) => {
     await client.query(
-      `insert into public.store_settings (id, store_name, music_enabled, music_mode)
-       values (true, $1, $2, $3)
+      `insert into public.store_settings
+        (id, store_name, music_enabled, music_mode,
+         mercadopago_enabled, bank_transfer_enabled, bank_transfer_cuit,
+         bank_transfer_instructions, contact_whatsapp_number)
+       values (true, $1, $2, $3, true, true, $4, $5, $6)
        on conflict (id) do nothing`,
-      [seedStore.storeName || 'Karolin Active', seedStore.music?.enabled !== false, seedStore.music?.mode || 'sequential']
+      [
+        seedStore.storeName || 'Essenza Fragancia',
+        seedStore.music?.enabled === true,
+        seedStore.music?.mode || 'sequential',
+        seedStore.payments?.bankTransfer?.cuit || '20462263970',
+        seedStore.payments?.bankTransfer?.instructions || 'Con transferencia o depósito tenés precio especial. Coordinamos la acreditación y el envío por WhatsApp.',
+        seedStore.contactLinks?.whatsappNumber || '543572585775',
+      ]
     );
 
     const productCount = await client.query('select count(*)::int as total from public.products');
@@ -245,8 +255,9 @@ async function seedIfEmpty() {
     }
 
     const homeImageCount = await client.query('select count(*)::int as total from public.home_images');
+    const homeImages = Array.isArray(seedStore.homeImages) && seedStore.homeImages.length ? seedStore.homeImages : DEFAULT_HOME_IMAGES;
     if (Number(homeImageCount.rows[0]?.total || 0) === 0) {
-      for (const image of DEFAULT_HOME_IMAGES) {
+      for (const image of homeImages) {
         await client.query(
           `insert into public.home_images
              (id, title, file_name, storage_bucket, storage_path, url, mime_type, enabled, sort_order, uploaded_at)
@@ -258,7 +269,7 @@ async function seedIfEmpty() {
             image.fileName || '',
             image.fileName || '',
             image.url || '',
-            'image/png',
+            'image/svg+xml',
             image.enabled !== false,
             Number(image.sortOrder || 1),
             image.uploadedAt || new Date().toISOString(),

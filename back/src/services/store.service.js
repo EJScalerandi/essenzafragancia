@@ -1,29 +1,19 @@
 const { query, withClient } = require('../db/postgres');
 
 const BANK_TRANSFER_MESSAGE =
-  'Las transferencias bancarias pueden demorar un poco debido a que se debe conciliar el pago. Recibirás un correo cuando se haya realizado.';
+  'Con transferencia o depósito tenés precio especial. Coordinamos la acreditación y el envío por WhatsApp.';
 
 const DEFAULT_MUSIC = {
-  enabled: true,
+  enabled: false,
   mode: 'sequential',
-  tracks: [
-    {
-      id: 'default-revive-the-light',
-      title: 'Revive the Light',
-      fileName: 'hvrgnd-schallraum-revive-the-light-343766.mp3',
-      url: '/media/music/hvrgnd-schallraum-revive-the-light-343766.mp3',
-      enabled: true,
-      sortOrder: 1,
-      uploadedAt: '2026-05-04T00:00:00.000Z',
-    },
-  ],
+  tracks: [],
 };
 
 const DEFAULT_HOME_IMAGES = [
-  { id: 'hero-active-set', title: 'Set Active Essential', fileName: 'active-set.png', url: '/products/active-set.png', enabled: true, sortOrder: 1, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-windbreaker', title: 'Campera Rompeviento Aura', fileName: 'windbreaker.png', url: '/products/windbreaker.png', enabled: true, sortOrder: 2, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-hoodie-set', title: 'Hoodie Set Comfort', fileName: 'hoodie-set.png', url: '/products/hoodie-set.png', enabled: true, sortOrder: 3, uploadedAt: '2026-05-04T00:00:00.000Z' },
-  { id: 'hero-basic-tee', title: 'Remera Motion Basic', fileName: 'basic-tee.png', url: '/products/basic-tee.png', enabled: true, sortOrder: 4, uploadedAt: '2026-05-04T00:00:00.000Z' },
+  { id: 'hero-hawas-malibu', title: 'HAWAS MALIBU', fileName: 'hawas-malibu.svg', url: '/products/hawas-malibu.svg', enabled: true, sortOrder: 1, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-yara-candy', title: 'YARA CANDY', fileName: 'yara-candy.svg', url: '/products/yara-candy.svg', enabled: true, sortOrder: 2, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-the-most-wanted', title: 'The Most Wanted Azzaro 100ML', fileName: 'the-most-wanted-azzaro.svg', url: '/products/the-most-wanted-azzaro.svg', enabled: true, sortOrder: 3, uploadedAt: '2026-05-22T00:00:00.000Z' },
+  { id: 'hero-combo-decants', title: 'COMBO 5 DECANTS DE 5ML', fileName: 'combo-5-decants-5ml.svg', url: '/products/combo-5-decants-5ml.svg', enabled: true, sortOrder: 4, uploadedAt: '2026-05-22T00:00:00.000Z' },
 ];
 
 const DEFAULT_PAYMENTS = {
@@ -34,7 +24,7 @@ const DEFAULT_PAYMENTS = {
     bankName: '',
     alias: '',
     cbu: '',
-    cuit: '',
+    cuit: '20462263970',
     instructions: BANK_TRANSFER_MESSAGE,
   },
 };
@@ -42,13 +32,13 @@ const DEFAULT_PAYMENTS = {
 const DEFAULT_CONTACT_LINKS = {
   instagramUrl: '',
   facebookUrl: '',
-  whatsappNumber: '',
+  whatsappNumber: '543572585775',
   addressText: '',
   addressUrl: '',
 };
 
 const DEFAULT_STORE = {
-  storeName: 'Karolin Active',
+  storeName: 'Essenza Fragancia',
   music: DEFAULT_MUSIC,
   homeImages: DEFAULT_HOME_IMAGES,
   payments: DEFAULT_PAYMENTS,
@@ -71,7 +61,7 @@ function normalizeMusicSettings(value) {
   const music = value && typeof value === 'object' ? value : DEFAULT_MUSIC;
   const tracks = Array.isArray(music.tracks) ? music.tracks : [];
   return {
-    enabled: music.enabled !== false,
+    enabled: music.enabled === true,
     mode: music.mode === 'random' ? 'random' : 'sequential',
     tracks: tracks
       .filter((track) => track && track.url)
@@ -117,7 +107,7 @@ function normalizePayments(value = {}) {
       bankName: String(bank.bankName || ''),
       alias: String(bank.alias || ''),
       cbu: String(bank.cbu || ''),
-      cuit: String(bank.cuit || ''),
+      cuit: String(bank.cuit || DEFAULT_PAYMENTS.bankTransfer.cuit),
       instructions: String(bank.instructions || BANK_TRANSFER_MESSAGE),
     },
   };
@@ -128,7 +118,7 @@ function normalizeContactLinks(value = {}) {
   return {
     instagramUrl: String(contact.instagramUrl || '').trim(),
     facebookUrl: String(contact.facebookUrl || '').trim(),
-    whatsappNumber: String(contact.whatsappNumber || '').trim(),
+    whatsappNumber: String(contact.whatsappNumber || DEFAULT_CONTACT_LINKS.whatsappNumber).trim(),
     addressText: String(contact.addressText || '').trim(),
     addressUrl: String(contact.addressUrl || '').trim(),
   };
@@ -179,7 +169,7 @@ function mapPayments(row) {
       bankName: row.bank_transfer_bank_name || '',
       alias: row.bank_transfer_alias || '',
       cbu: row.bank_transfer_cbu || '',
-      cuit: row.bank_transfer_cuit || '',
+      cuit: row.bank_transfer_cuit || DEFAULT_PAYMENTS.bankTransfer.cuit,
       instructions: row.bank_transfer_instructions || BANK_TRANSFER_MESSAGE,
     },
   });
@@ -189,7 +179,7 @@ function mapContactLinks(row) {
   return normalizeContactLinks({
     instagramUrl: row.contact_instagram_url || '',
     facebookUrl: row.contact_facebook_url || '',
-    whatsappNumber: row.contact_whatsapp_number || '',
+    whatsappNumber: row.contact_whatsapp_number || DEFAULT_CONTACT_LINKS.whatsappNumber,
     addressText: row.contact_address_text || '',
     addressUrl: row.contact_address_url || '',
   });
@@ -210,10 +200,19 @@ async function getStoreSettings() {
 
   if (!settingsRows.length) {
     await query(
-      `insert into public.store_settings (id, store_name, music_enabled, music_mode)
-       values (true, $1, $2, $3)
+      `insert into public.store_settings
+        (id, store_name, music_enabled, music_mode, mercadopago_enabled, bank_transfer_enabled,
+         bank_transfer_cuit, bank_transfer_instructions, contact_whatsapp_number)
+       values (true, $1, $2, $3, true, true, $4, $5, $6)
        on conflict (id) do nothing`,
-      [DEFAULT_STORE.storeName, DEFAULT_STORE.music.enabled, DEFAULT_STORE.music.mode]
+      [
+        DEFAULT_STORE.storeName,
+        DEFAULT_STORE.music.enabled,
+        DEFAULT_STORE.music.mode,
+        DEFAULT_STORE.payments.bankTransfer.cuit,
+        DEFAULT_STORE.payments.bankTransfer.instructions,
+        DEFAULT_STORE.contactLinks.whatsappNumber,
+      ]
     );
   }
 
@@ -223,10 +222,11 @@ async function getStoreSettings() {
     music_mode: DEFAULT_STORE.music.mode,
     mercadopago_enabled: true,
     bank_transfer_enabled: true,
+    bank_transfer_cuit: DEFAULT_STORE.payments.bankTransfer.cuit,
     bank_transfer_instructions: BANK_TRANSFER_MESSAGE,
     contact_instagram_url: '',
     contact_facebook_url: '',
-    contact_whatsapp_number: '',
+    contact_whatsapp_number: DEFAULT_STORE.contactLinks.whatsappNumber,
     contact_address_text: '',
     contact_address_url: '',
   };
@@ -246,7 +246,7 @@ async function getStoreSettings() {
   return normalizeStoreSettings({
     storeName: settings.store_name,
     music: {
-      enabled: settings.music_enabled !== false,
+      enabled: settings.music_enabled === true,
       mode: settings.music_mode === 'random' ? 'random' : 'sequential',
       tracks: trackRows.map(mapTrack),
     },
@@ -309,7 +309,7 @@ async function replaceHomeImages(client, incomingImages) {
         existing.storage_bucket || 'store-home-images',
         existing.storage_path || image.fileName || '',
         image.url,
-        existing.mime_type || 'image/jpeg',
+        existing.mime_type || 'image/svg+xml',
         existing.size_bytes || null,
         existing.file_data || null,
         image.enabled !== false,
@@ -357,7 +357,7 @@ async function updateStoreSettings(patch) {
          contact_address_url = excluded.contact_address_url`,
       [
         nextStoreName || DEFAULT_STORE.storeName,
-        nextMusic.enabled !== false,
+        nextMusic.enabled === true,
         nextMusic.mode,
         nextPayments.mercadopago.enabled !== false,
         nextPayments.bankTransfer.enabled !== false,
@@ -365,11 +365,11 @@ async function updateStoreSettings(patch) {
         nextPayments.bankTransfer.bankName || '',
         nextPayments.bankTransfer.alias || '',
         nextPayments.bankTransfer.cbu || '',
-        nextPayments.bankTransfer.cuit || '',
+        nextPayments.bankTransfer.cuit || DEFAULT_PAYMENTS.bankTransfer.cuit,
         nextPayments.bankTransfer.instructions || BANK_TRANSFER_MESSAGE,
         nextContactLinks.instagramUrl || '',
         nextContactLinks.facebookUrl || '',
-        nextContactLinks.whatsappNumber || '',
+        nextContactLinks.whatsappNumber || DEFAULT_CONTACT_LINKS.whatsappNumber,
         nextContactLinks.addressText || '',
         nextContactLinks.addressUrl || '',
       ]
@@ -421,7 +421,7 @@ async function createHomeImageFromUpload({ id, title, fileName, url, mimeType, s
     `insert into public.home_images
       (id, title, file_name, storage_bucket, storage_path, url, mime_type, size_bytes, file_data, enabled, sort_order, uploaded_at)
      values ($1, $2, $3, 'store-home-images', $4, $5, $6, $7, $8, true, $9, now())`,
-    [id, title, fileName, fileName, url, mimeType || 'image/jpeg', sizeBytes || null, buffer, images.length + 1]
+    [id, title, fileName, fileName, url, mimeType || 'image/svg+xml', sizeBytes || null, buffer, images.length + 1]
   );
 
   return getStoreSettings();

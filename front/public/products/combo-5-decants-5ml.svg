@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="720" viewBox="0 0 600 720" role="img" aria-label="COMBO 5 DECANTS DE 5ML">
+  <defs>
+    <radialGradient id="g" cx="28%" cy="18%" r="90%">
+      <stop offset="0%" stop-color="#f6e3b4"/>
+      <stop offset="45%" stop-color="#6b4a2f"/>
+      <stop offset="100%" stop-color="#1d1612"/>
+    </radialGradient>
+    <linearGradient id="shine" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.70"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="720" fill="url(#g)"/>
+  <circle cx="500" cy="90" r="92" fill="#c8a45d" opacity="0.15"/>
+  <circle cx="84" cy="620" r="132" fill="#fffdf8" opacity="0.08"/>
+  <g transform="translate(0 70)">
+
+        <rect x="180" y="86" width="46" height="148" rx="18" fill="#fffdf8" opacity="0.95"/>
+        <rect x="191" y="62" width="24" height="28" rx="6" fill="#c8a45d"/>
+        <rect x="275" y="86" width="46" height="148" rx="18" fill="#fffdf8" opacity="0.85"/>
+        <rect x="286" y="62" width="24" height="28" rx="6" fill="#c8a45d"/>
+        <rect x="370" y="86" width="46" height="148" rx="18" fill="#fffdf8" opacity="0.95"/>
+        <rect x="381" y="62" width="24" height="28" rx="6" fill="#c8a45d"/>
+
+    <path d="M252 96c-26 20-40 53-40 98 0 85 176 84 176-2 0-43-13-76-39-96 15 22 22 49 22 81 0 59-142 59-142 0 0-32 8-59 23-81Z" fill="url(#shine)" opacity="0.5"/>
+  </g>
+  <rect x="62" y="514" width="476" height="118" rx="24" fill="#fffdf8" opacity="0.92"/>
+  <text x="300" y="557" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-size="23" font-weight="800" fill="#1d1612">COMBO 5 DECANTS DE 5ML</text>
+  <text x="300" y="590" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-size="16" font-weight="700" fill="#6f6254" letter-spacing="2">COMBO DECANTS 5ML</text>
+  <text x="300" y="622" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-style="italic" fill="#8b6f3a">Essenza Fragancia</text>
+</svg>

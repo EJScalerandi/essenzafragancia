@@ -1,65 +1,55 @@
 export const BRAND = {
-  name: "Karolin Active",
-  segment: "Indumentaria",
-  tagline: "Gracias por tu compra!",
-  shortName: "KA",
+  name: "Essenza Fragancia",
+  segment: "Perfumería",
+  tagline: "Fragancias originales, decants y perfumes árabes seleccionados.",
+  shortName: "EF",
 };
 
 export const BANK_TRANSFER_MESSAGE =
-  "Las transferencias bancarias pueden demorar un poco debido a que se debe conciliar el pago. Recibirás un correo cuando se haya realizado.";
+  "Con transferencia o depósito tenés precio especial. Coordinamos la acreditación y el envío por WhatsApp.";
 
 export const DEFAULT_MUSIC = {
-  enabled: true,
+  enabled: false,
   mode: "sequential",
-  tracks: [
-    {
-      id: "default-revive-the-light",
-      title: "Revive the Light",
-      fileName: "hvrgnd-schallraum-revive-the-light-343766.mp3",
-      url: "/music/hvrgnd-schallraum-revive-the-light-343766.mp3",
-      enabled: true,
-      sortOrder: 1,
-      uploadedAt: "2026-05-04T00:00:00.000Z",
-    },
-  ],
+  tracks: [],
 };
 
 export const DEFAULT_HOME_IMAGES = [
   {
-    id: "hero-active-set",
-    title: "Set Active Essential",
-    fileName: "active-set.png",
-    url: "/products/active-set.png",
+    id: "hero-hawas-malibu",
+    title: "HAWAS MALIBU",
+    fileName: "hawas-malibu.svg",
+    url: "/products/hawas-malibu.svg",
     enabled: true,
     sortOrder: 1,
-    uploadedAt: "2026-05-04T00:00:00.000Z",
+    uploadedAt: "2026-05-22T00:00:00.000Z",
   },
   {
-    id: "hero-windbreaker",
-    title: "Campera Rompeviento Aura",
-    fileName: "windbreaker.png",
-    url: "/products/windbreaker.png",
+    id: "hero-yara-candy",
+    title: "YARA CANDY",
+    fileName: "yara-candy.svg",
+    url: "/products/yara-candy.svg",
     enabled: true,
     sortOrder: 2,
-    uploadedAt: "2026-05-04T00:00:00.000Z",
+    uploadedAt: "2026-05-22T00:00:00.000Z",
   },
   {
-    id: "hero-hoodie-set",
-    title: "Hoodie Set Comfort",
-    fileName: "hoodie-set.png",
-    url: "/products/hoodie-set.png",
+    id: "hero-the-most-wanted",
+    title: "The Most Wanted Azzaro 100ML",
+    fileName: "the-most-wanted-azzaro.svg",
+    url: "/products/the-most-wanted-azzaro.svg",
     enabled: true,
     sortOrder: 3,
-    uploadedAt: "2026-05-04T00:00:00.000Z",
+    uploadedAt: "2026-05-22T00:00:00.000Z",
   },
   {
-    id: "hero-basic-tee",
-    title: "Remera Motion Basic",
-    fileName: "basic-tee.png",
-    url: "/products/basic-tee.png",
+    id: "hero-combo-decants",
+    title: "COMBO 5 DECANTS DE 5ML",
+    fileName: "combo-5-decants-5ml.svg",
+    url: "/products/combo-5-decants-5ml.svg",
     enabled: true,
     sortOrder: 4,
-    uploadedAt: "2026-05-04T00:00:00.000Z",
+    uploadedAt: "2026-05-22T00:00:00.000Z",
   },
 ];
 
@@ -73,7 +63,7 @@ export const DEFAULT_PAYMENTS = {
     bankName: "",
     alias: "",
     cbu: "",
-    cuit: "",
+    cuit: "20462263970",
     instructions: BANK_TRANSFER_MESSAGE,
   },
 };
@@ -81,25 +71,25 @@ export const DEFAULT_PAYMENTS = {
 export const DEFAULT_CONTACT_LINKS = {
   instagramUrl: "",
   facebookUrl: "",
-  whatsappNumber: "",
+  whatsappNumber: "543572585775",
   addressText: "",
   addressUrl: "",
 };
 
 export const STORAGE_KEYS = {
-  ADMIN_TOKEN: "karolin_active_admin_token",
-  BUYER_TOKEN: "karolin_active_buyer_token",
-  CART: "karolin_active_cart_v1",
-  PRODUCTS: "karolin_active_products_v1",
-  PRODUCTS_UPDATED: "karolin_active_products_updated",
-  LAST_ORDER: "karolin_active_last_order_id",
-  ORDER_TOKEN_PREFIX: "karolin_active_order_token_",
-  PAYMENT_CLEARED_PREFIX: "karolin_active_payment_cleared_",
+  ADMIN_TOKEN: "essenza_fragancia_admin_token",
+  BUYER_TOKEN: "essenza_fragancia_buyer_token",
+  CART: "essenza_fragancia_cart_v1",
+  PRODUCTS: "essenza_fragancia_products_v1",
+  PRODUCTS_UPDATED: "essenza_fragancia_products_updated",
+  LAST_ORDER: "essenza_fragancia_last_order_id",
+  ORDER_TOKEN_PREFIX: "essenza_fragancia_order_token_",
+  PAYMENT_CLEARED_PREFIX: "essenza_fragancia_payment_cleared_",
 };
 
 export function normalizeStoreName(value) {
   const name = String(value || "").trim();
-  if (!name || /storefront/i.test(name)) return BRAND.name;
+  if (!name || /storefront/i.test(name) || /karolin/i.test(name)) return BRAND.name;
   return name;
 }
 
@@ -108,7 +98,7 @@ export function normalizeMusicSettings(value = DEFAULT_MUSIC) {
   const tracks = Array.isArray(music.tracks) ? music.tracks : [];
 
   return {
-    enabled: music.enabled !== false,
+    enabled: music.enabled === true,
     mode: music.mode === "random" ? "random" : "sequential",
     tracks: tracks
       .filter((track) => track && track.url)

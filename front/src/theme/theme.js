@@ -1,19 +1,21 @@
 import { createTheme } from "@mui/material/styles";
 
-const squareRadius = 8;
-const squareRadiusSmall = 6;
+const radius = 14;
+const radiusSmall = 10;
 
 export const theme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#111111", contrastText: "#ffffff" },
-    secondary: { main: "#9f8f72", contrastText: "#111111" },
-    background: { default: "#f7f4ef", paper: "#ffffff" },
-    text: { primary: "#111111", secondary: "#5e5a54" },
-    divider: "rgba(17, 17, 17, 0.12)",
+    primary: { main: "#1d1612", contrastText: "#ffffff" },
+    secondary: { main: "#c8a45d", contrastText: "#1d1612" },
+    background: { default: "#fbf6ee", paper: "#fffdf8" },
+    text: { primary: "#1d1612", secondary: "#6f6254" },
+    divider: "rgba(67, 48, 34, 0.13)",
+    error: { main: "#8f332d" },
+    success: { main: "#4d6a46" },
   },
   shape: {
-    borderRadius: squareRadius,
+    borderRadius: radius,
   },
   typography: {
     fontFamily: [
@@ -27,8 +29,8 @@ export const theme = createTheme({
       "sans-serif",
     ].join(","),
     h1: { fontWeight: 950, letterSpacing: "-0.06em" },
-    h2: { fontWeight: 950, letterSpacing: "-0.05em" },
-    h3: { fontWeight: 950, letterSpacing: "-0.045em" },
+    h2: { fontWeight: 950, letterSpacing: "-0.055em" },
+    h3: { fontWeight: 930, letterSpacing: "-0.045em" },
     h4: { fontWeight: 900, letterSpacing: "-0.035em" },
     h5: { fontWeight: 900, letterSpacing: "-0.025em" },
     h6: { fontWeight: 900 },
@@ -39,16 +41,16 @@ export const theme = createTheme({
       styleOverrides: {
         body: {
           background:
-            "radial-gradient(circle at top left, rgba(159, 143, 114, 0.18), transparent 34rem), #f7f4ef",
+            "radial-gradient(circle at top left, rgba(200, 164, 93, 0.22), transparent 34rem), radial-gradient(circle at bottom right, rgba(93, 63, 36, 0.10), transparent 30rem), #fbf6ee",
         },
       },
     },
     MuiAppBar: {
       styleOverrides: {
         root: {
-          background: "rgba(255, 255, 255, 0.86)",
-          color: "#111111",
-          borderBottom: "1px solid rgba(17, 17, 17, 0.10)",
+          background: "rgba(255, 253, 248, 0.88)",
+          color: "#1d1612",
+          borderBottom: "1px solid rgba(67, 48, 34, 0.12)",
           backdropFilter: "blur(16px)",
         },
       },
@@ -56,20 +58,20 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadius,
+          borderRadius: radiusSmall,
           textTransform: "none",
           boxShadow: "none",
         },
         contained: {
-          boxShadow: "0 12px 26px rgba(17, 17, 17, 0.14)",
-          "&:hover": { boxShadow: "0 14px 30px rgba(17, 17, 17, 0.20)" },
+          boxShadow: "0 16px 34px rgba(29, 22, 18, 0.16)",
+          "&:hover": { boxShadow: "0 18px 38px rgba(29, 22, 18, 0.22)" },
         },
       },
     },
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadius,
+          borderRadius: radiusSmall,
         },
       },
     },
@@ -77,24 +79,24 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: "none",
-          borderRadius: squareRadius,
+          borderRadius: radius,
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadius,
-          border: "1px solid rgba(17, 17, 17, 0.10)",
-          boxShadow: "0 14px 34px rgba(17, 17, 17, 0.08)",
+          borderRadius: radius,
+          border: "1px solid rgba(67, 48, 34, 0.12)",
+          boxShadow: "0 18px 42px rgba(29, 22, 18, 0.08)",
         },
       },
     },
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadiusSmall,
-          fontWeight: 750,
+          borderRadius: radiusSmall,
+          fontWeight: 800,
           letterSpacing: "0.01em",
         },
       },
@@ -107,14 +109,14 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadius,
+          borderRadius: radiusSmall,
         },
       },
     },
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: squareRadius,
+          borderRadius: radius,
         },
       },
     },
@@ -128,14 +130,14 @@ export const theme = createTheme({
     MuiAvatar: {
       styleOverrides: {
         rounded: {
-          borderRadius: squareRadiusSmall,
+          borderRadius: radiusSmall,
         },
       },
     },
     MuiPaginationItem: {
       styleOverrides: {
         root: {
-          borderRadius: squareRadiusSmall,
+          borderRadius: radiusSmall,
         },
       },
     },

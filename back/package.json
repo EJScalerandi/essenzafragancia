@@ -1,7 +1,7 @@
 {
-  "name": "karolina-active-ecommerce-backend",
+  "name": "essenza-fragancia-ecommerce-backend",
   "version": "0.1.0",
-  "description": "Backend Node.js + Express for Karolin Active e-commerce",
+  "description": "Backend Node.js + Express for Essenza Fragancia e-commerce",
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
