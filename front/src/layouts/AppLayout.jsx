@@ -19,6 +19,7 @@ import Typography from "@mui/material/Typography";
 
 import AddIcon from "@mui/icons-material/Add";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -31,10 +32,13 @@ import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
+import brandLogo from "../assets/essenza-logo.svg";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 import BackgroundMusic from "../components/BackgroundMusic.jsx";
+
+const SERIF = '"Playfair Display", Georgia, serif';
 
 const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -42,20 +46,29 @@ const money = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0,
 });
 
-function NavButton({ to, children }) {
+function NavButton({ to, children, end }) {
   return (
     <Button
       component={RouterNavLink}
       to={to}
+      end={end}
       color="inherit"
       sx={{
-        px: 1.4,
-        fontWeight: 850,
+        px: 1.6,
+        py: 0.9,
+        fontWeight: 700,
+        fontSize: "0.88rem",
         letterSpacing: "0.02em",
         color: "text.secondary",
+        borderRadius: 1.5,
         "&.active": {
           color: "text.primary",
-          bgcolor: "rgba(17, 17, 17, 0.06)",
+          bgcolor: "rgba(29,22,18,0.07)",
+          fontWeight: 900,
+        },
+        "&:hover": {
+          color: "text.primary",
+          bgcolor: "rgba(29,22,18,0.05)",
         },
       }}
     >
@@ -76,13 +89,15 @@ function MobileMenuButton({ to, icon, label, onClick, end = false }) {
       sx={{
         justifyContent: "flex-start",
         color: "text.secondary",
-        fontWeight: 850,
-        px: 1.5,
-        py: 1.15,
-        borderRadius: 1,
+        fontWeight: 700,
+        px: 2,
+        py: 1.2,
+        borderRadius: 1.5,
+        fontSize: "0.9rem",
         "&.active": {
           color: "text.primary",
-          bgcolor: "rgba(17,17,17,0.08)",
+          bgcolor: "rgba(29,22,18,0.08)",
+          fontWeight: 900,
         },
       }}
     >
@@ -102,7 +117,6 @@ function whatsappLink(value) {
   const raw = String(value || "").trim();
   if (!raw) return "";
   if (/^https?:\/\//i.test(raw)) return raw;
-
   const digits = raw.replace(/\D+/g, "");
   if (!digits) return "";
   return `https://wa.me/${digits}`;
@@ -111,61 +125,37 @@ function whatsappLink(value) {
 function addressLink({ addressUrl, addressText }) {
   const configuredMapPoint = cleanExternalLink(addressUrl);
   if (configuredMapPoint) return configuredMapPoint;
-
   const detail = String(addressText || "").trim();
   if (!detail) return "";
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(detail)}`;
 }
 
-function FooterIconLink({ href, label, icon, text = "" }) {
-  const cleanText = String(text || "").trim();
-  const hasText = Boolean(cleanText);
-
+function FooterIconLink({ href, label, icon }) {
   const commonSx = {
-    minWidth: hasText ? "auto" : 40,
-    width: hasText ? "auto" : 40,
+    width: 40,
     height: 40,
-    px: hasText ? 1.25 : 0,
-    border: "1px solid rgba(17,17,17,0.12)",
-    bgcolor: href ? "#ffffff" : "rgba(255,255,255,0.58)",
-    color: href ? "text.primary" : "text.disabled",
-    borderRadius: 1,
+    border: "1px solid rgba(67,48,34,0.14)",
+    bgcolor: href ? "#fffdf8" : "rgba(255,253,248,0.50)",
+    color: href ? "text.secondary" : "text.disabled",
+    borderRadius: 1.5,
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: 0.75,
     textDecoration: "none",
     cursor: href ? "pointer" : "default",
+    transition: "all 200ms ease",
     "&:hover": {
-      bgcolor: href ? "rgba(17,17,17,0.05)" : "rgba(255,255,255,0.58)",
-      textDecoration: "none",
+      bgcolor: href ? "#1d1612" : "transparent",
+      color: href ? "#c8a45d" : "text.disabled",
+      borderColor: href ? "#1d1612" : "rgba(67,48,34,0.14)",
+      transform: href ? "translateY(-2px)" : "none",
     },
   };
-
-  const content = (
-    <>
-      {icon}
-      {hasText ? (
-        <Typography
-          component="span"
-          variant="body2"
-          sx={{
-            color: "inherit",
-            fontWeight: 800,
-            lineHeight: 1,
-            whiteSpace: "nowrap",
-          }}
-        >
-          {cleanText}
-        </Typography>
-      ) : null}
-    </>
-  );
 
   if (!href) {
     return (
       <Box component="span" aria-label={label} title={`${label} sin configurar`} sx={commonSx}>
-        {content}
+        {icon}
       </Box>
     );
   }
@@ -180,7 +170,7 @@ function FooterIconLink({ href, label, icon, text = "" }) {
       title={label}
       sx={commonSx}
     >
-      {content}
+      {icon}
     </Box>
   );
 }
@@ -192,54 +182,52 @@ function CartDropdownContent({ onClose }) {
     <Paper
       elevation={10}
       sx={{
-        width: { xs: "100%", md: 520 },
+        width: { xs: "100%", md: 480 },
         maxWidth: "100%",
         ml: { md: "auto" },
-        p: { xs: 1.5, sm: 2 },
-        borderRadius: 1,
-        border: "1px solid rgba(17,17,17,0.10)",
-        boxShadow: "0 18px 42px rgba(17,17,17,0.16)",
+        p: { xs: 2, sm: 2.5 },
+        borderRadius: 2,
+        border: "1px solid rgba(67,48,34,0.10)",
+        boxShadow: "0 20px 60px rgba(29,22,18,0.16)",
       }}
     >
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-        <Typography variant="h6" sx={{ fontWeight: 900 }}>
-          Carrito
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
+        <Typography sx={{ fontFamily: SERIF, fontWeight: 700, fontSize: "1.1rem" }}>
+          Tu carrito
         </Typography>
-        <Button color="error" variant="text" onClick={clear} disabled={items.length === 0}>
-          Vaciar
-        </Button>
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          {items.length > 0 && (
+            <Button color="error" variant="text" size="small" onClick={clear}>
+              Vaciar
+            </Button>
+          )}
+          <IconButton size="small" onClick={onClose} sx={{ borderRadius: 1 }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
       </Stack>
 
       <Divider />
 
       {items.length === 0 ? (
-        <Box sx={{ py: 2.5 }}>
-          <Typography color="text.secondary">Tu carrito está vacío.</Typography>
-          <Button
-            sx={{ mt: 2 }}
-            component={RouterLink}
-            to="/products"
-            variant="contained"
-            onClick={onClose}
-          >
+        <Box sx={{ py: 3, textAlign: "center" }}>
+          <ShoppingBagOutlinedIcon sx={{ fontSize: 48, color: "text.disabled", mb: 1 }} />
+          <Typography color="text.secondary" sx={{ fontSize: "0.9rem" }}>Tu carrito está vacío.</Typography>
+          <Button sx={{ mt: 2 }} component={RouterLink} to="/products" variant="contained" onClick={onClose} size="small">
             Ver productos
           </Button>
         </Box>
       ) : (
         <>
-          <List sx={{ py: 0, maxHeight: { xs: 360, md: 420 }, overflowY: "auto" }}>
+          <List sx={{ py: 0, maxHeight: { xs: 340, md: 400 }, overflowY: "auto" }}>
             {items.map((i) => (
-              <ListItem key={i.id} disableGutters sx={{ py: 1.35 }}>
+              <ListItem key={i.id} disableGutters sx={{ py: 1.5 }}>
                 <Box
                   sx={{
                     width: "100%",
                     display: "grid",
-                    gridTemplateColumns: {
-                      xs: "54px minmax(0, 1fr)",
-                      sm: "56px minmax(0, 1fr) auto",
-                    },
+                    gridTemplateColumns: "52px minmax(0, 1fr) auto",
                     columnGap: 1.5,
-                    rowGap: 0.75,
                     alignItems: "center",
                   }}
                 >
@@ -247,14 +235,20 @@ function CartDropdownContent({ onClose }) {
                     variant="rounded"
                     src={i.image}
                     alt={i.name}
-                    sx={{ width: 52, height: 52, borderRadius: 1 }}
+                    sx={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 1.5,
+                      border: "1px solid rgba(67,48,34,0.10)",
+                    }}
                   />
 
                   <Box sx={{ minWidth: 0 }}>
                     <Typography
                       sx={{
-                        fontWeight: 900,
-                        lineHeight: 1.15,
+                        fontWeight: 800,
+                        fontSize: "0.88rem",
+                        lineHeight: 1.25,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "-webkit-box",
@@ -264,38 +258,24 @@ function CartDropdownContent({ onClose }) {
                     >
                       {i.name}
                     </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 0.25, overflow: "hidden", textOverflow: "ellipsis" }}
-                    >
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.25 }}>
                       {money.format(i.price)} c/u
                       {i.variant ? ` · ${i.variant.color} / ${i.variant.size}` : ""}
                     </Typography>
                   </Box>
 
-                  <Stack
-                    direction="row"
-                    spacing={0.5}
-                    alignItems="center"
-                    sx={{
-                      gridColumn: { xs: "2 / 3", sm: "auto" },
-                      justifySelf: { xs: "flex-start", sm: "flex-end" },
-                      flexShrink: 0,
-                      ml: { sm: 1 },
-                    }}
-                  >
-                    <IconButton size="small" onClick={() => removeOne(i.id)} aria-label="Quitar una unidad">
-                      <RemoveIcon fontSize="small" />
+                  <Stack direction="row" spacing={0.25} alignItems="center" sx={{ flexShrink: 0 }}>
+                    <IconButton size="small" onClick={() => removeOne(i.id)} aria-label="Quitar una unidad" sx={{ borderRadius: 1 }}>
+                      <RemoveIcon sx={{ fontSize: "0.9rem" }} />
                     </IconButton>
-                    <Typography sx={{ width: 22, textAlign: "center", fontWeight: 900 }}>
+                    <Typography sx={{ width: 22, textAlign: "center", fontWeight: 900, fontSize: "0.9rem" }}>
                       {i.qty}
                     </Typography>
-                    <IconButton size="small" onClick={() => addItem(i)} aria-label="Agregar una unidad">
-                      <AddIcon fontSize="small" />
+                    <IconButton size="small" onClick={() => addItem(i)} aria-label="Agregar una unidad" sx={{ borderRadius: 1 }}>
+                      <AddIcon sx={{ fontSize: "0.9rem" }} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => deleteItem(i.id)} aria-label="Eliminar producto">
-                      <DeleteOutlineIcon fontSize="small" />
+                    <IconButton size="small" color="error" onClick={() => deleteItem(i.id)} aria-label="Eliminar" sx={{ borderRadius: 1 }}>
+                      <DeleteOutlineIcon sx={{ fontSize: "0.9rem" }} />
                     </IconButton>
                   </Stack>
                 </Box>
@@ -303,21 +283,30 @@ function CartDropdownContent({ onClose }) {
             ))}
           </List>
 
-          <Divider sx={{ my: 1 }} />
+          <Divider sx={{ my: 1.5 }} />
 
-          <Stack spacing={1}>
-            <Stack direction="row" justifyContent="space-between">
-              <Typography sx={{ fontWeight: 800 }}>Total</Typography>
-              <Typography sx={{ fontWeight: 900 }}>{money.format(total)}</Typography>
+          <Stack spacing={1.25}>
+            <Stack direction="row" justifyContent="space-between" alignItems="baseline">
+              <Typography sx={{ fontWeight: 700, color: "text.secondary", fontSize: "0.9rem" }}>Total</Typography>
+              <Typography
+                sx={{
+                  fontFamily: SERIF,
+                  fontWeight: 700,
+                  fontSize: "1.3rem",
+                }}
+              >
+                {money.format(total)}
+              </Typography>
             </Stack>
 
-            <Button component={RouterLink} to="/cart" variant="outlined" onClick={onClose}>
-              Ver carrito
-            </Button>
-
-            <Button component={RouterLink} to="/checkout" variant="contained" onClick={onClose}>
-              Finalizar compra
-            </Button>
+            <Stack direction="row" spacing={1}>
+              <Button component={RouterLink} to="/cart" variant="outlined" onClick={onClose} fullWidth>
+                Ver carrito
+              </Button>
+              <Button component={RouterLink} to="/checkout" variant="contained" onClick={onClose} fullWidth>
+                Comprar
+              </Button>
+            </Stack>
           </Stack>
         </>
       )}
@@ -327,50 +316,43 @@ function CartDropdownContent({ onClose }) {
 
 function BrandMark({ storeName }) {
   return (
-    <Stack direction="row" alignItems="center" spacing={1.25} sx={{ minWidth: 0 }}>
+    <Stack direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0 }}>
       <Box
+        component="img"
+        src={brandLogo}
+        alt={`${BRAND.name} logo`}
         sx={{
-          width: { xs: 42, sm: 48 },
-          height: { xs: 42, sm: 48 },
-          borderRadius: "8px",
-          bgcolor: "#111111",
-          color: "#ffffff",
-          display: "grid",
-          placeItems: "center",
-          fontWeight: 950,
-          fontSize: { xs: 17, sm: 20 },
-          letterSpacing: "-0.12em",
-          boxShadow: "0 16px 30px rgba(17,17,17,0.18)",
-          flexShrink: 0,
+          height: { xs: 30, sm: 36 },
+          width: "auto",
+          display: "block",
+          filter: "drop-shadow(0 1px 3px rgba(29,22,18,0.12))",
         }}
-      >
-        {BRAND.shortName}
-      </Box>
-
-      <Box sx={{ lineHeight: 1, minWidth: 0 }}>
+      />
+      <Box sx={{ lineHeight: 1, minWidth: 0, display: { xs: "none", sm: "block" } }}>
         <Typography
           component="div"
           sx={{
-            fontWeight: 950,
-            letterSpacing: "-0.05em",
-            fontSize: { xs: 17, sm: 22 },
+            fontFamily: SERIF,
+            fontWeight: 700,
+            fontSize: { sm: "1rem", md: "1.1rem" },
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
-            maxWidth: { xs: 135, sm: 260 },
+            maxWidth: { sm: 200, md: 280 },
+            lineHeight: 1.1,
           }}
         >
-          {storeName}
+          {storeName || BRAND.name}
         </Typography>
         <Typography
           component="div"
           sx={{
-            fontSize: { xs: 9, sm: 10 },
+            fontSize: "0.65rem",
             fontWeight: 700,
-            letterSpacing: { xs: "0.28em", sm: "0.42em" },
+            letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: "text.secondary",
-            mt: 0.35,
+            color: "#c8a45d",
+            mt: 0.25,
           }}
         >
           {BRAND.segment}
@@ -388,15 +370,10 @@ export default function AppLayout() {
 
   const contactLinks = settings.contactLinks || {};
   const footerLinks = [
-    { label: "Instagram", href: cleanExternalLink(contactLinks.instagramUrl), icon: <InstagramIcon /> },
-    { label: "Facebook", href: cleanExternalLink(contactLinks.facebookUrl), icon: <FacebookIcon /> },
-    { label: "WhatsApp", href: whatsappLink(contactLinks.whatsappNumber), icon: <WhatsAppIcon /> },
-    {
-      label: contactLinks.addressText || "Dirección",
-      href: addressLink(contactLinks),
-      icon: <LocationOnIcon />,
-      text: contactLinks.addressText,
-    },
+    { label: "Instagram", href: cleanExternalLink(contactLinks.instagramUrl), icon: <InstagramIcon sx={{ fontSize: "1.1rem" }} /> },
+    { label: "Facebook", href: cleanExternalLink(contactLinks.facebookUrl), icon: <FacebookIcon sx={{ fontSize: "1.1rem" }} /> },
+    { label: "WhatsApp", href: whatsappLink(contactLinks.whatsappNumber), icon: <WhatsAppIcon sx={{ fontSize: "1.1rem" }} /> },
+    { label: contactLinks.addressText || "Dirección", href: addressLink(contactLinks), icon: <LocationOnIcon sx={{ fontSize: "1.1rem" }} /> },
   ];
 
   const closeMenu = () => setMenuOpen(false);
@@ -406,161 +383,178 @@ export default function AppLayout() {
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <AppBar position="sticky" elevation={0}>
         <Container maxWidth="lg" disableGutters>
-          <Toolbar sx={{ gap: { xs: 0.75, sm: 1.25 }, px: { xs: 1, sm: 2 }, minHeight: { xs: 66, sm: 76 } }}>
+          <Toolbar sx={{ gap: { xs: 0.5, sm: 1 }, px: { xs: 1.5, sm: 2.5 }, minHeight: { xs: 64, sm: 72 } }}>
+            {/* Mobile menu toggle */}
             <IconButton
               aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((open) => !open)}
-              sx={{ display: { xs: "inline-flex", md: "none" }, mr: 0.5 }}
+              onClick={() => { setMenuOpen((o) => !o); setCartOpen(false); }}
+              sx={{ display: { xs: "inline-flex", md: "none" }, mr: 0.25 }}
             >
-              <MenuIcon />
+              {menuOpen ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
 
-            <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            {/* Brand */}
+            <Box component={RouterLink} to="/" sx={{ flexGrow: 1, minWidth: 0, textDecoration: "none", color: "inherit" }}>
               <BrandMark storeName={settings.storeName} />
             </Box>
 
-            <Stack
-              direction="row"
-              spacing={0.5}
-              alignItems="center"
-              sx={{ display: { xs: "none", md: "flex" } }}
-            >
-              <NavButton to="/">Inicio</NavButton>
-              <NavButton to="/products">Productos</NavButton>
-
-              <Button
-                component={RouterNavLink}
-                to="/account"
-                color="inherit"
-                startIcon={<PersonOutlineIcon />}
-                sx={{ fontWeight: 850, color: "text.secondary" }}
-              >
-                Mi cuenta
-              </Button>
-
+            {/* Desktop nav */}
+            <Stack direction="row" spacing={0.25} alignItems="center" sx={{ display: { xs: "none", md: "flex" } }}>
+              <NavButton to="/" end>Inicio</NavButton>
+              <NavButton to="/products">Perfumes</NavButton>
+              <NavButton to="/account">Mi cuenta</NavButton>
               <Button
                 component={RouterNavLink}
                 to="/admin"
                 color="inherit"
-                startIcon={<AdminPanelSettingsIcon />}
-                sx={{ fontWeight: 850, color: "text.secondary" }}
+                startIcon={<AdminPanelSettingsIcon sx={{ fontSize: "0.95rem" }} />}
+                sx={{
+                  fontWeight: 700,
+                  fontSize: "0.88rem",
+                  color: "text.secondary",
+                  borderRadius: 1.5,
+                  px: 1.6,
+                }}
               >
                 Admin
               </Button>
             </Stack>
 
+            {/* Cart button */}
             <IconButton
               aria-label={cartOpen ? "Cerrar carrito" : "Abrir carrito"}
               aria-expanded={cartOpen}
-              onClick={() => {
-                closeMenu();
-                setCartOpen((open) => !open);
-              }}
+              onClick={() => { closeMenu(); setCartOpen((o) => !o); }}
               sx={{
-                ml: { xs: 0.25, md: 1 },
-                border: "1px solid rgba(17, 17, 17, 0.16)",
-                bgcolor: "#ffffff",
-                "&:hover": { bgcolor: "rgba(17,17,17,0.04)" },
+                ml: { xs: 0.5, md: 1 },
+                border: "1.5px solid rgba(67,48,34,0.15)",
+                bgcolor: cartOpen ? "#1d1612" : "#fffdf8",
+                color: cartOpen ? "#c8a45d" : "text.primary",
+                transition: "all 200ms ease",
+                "&:hover": {
+                  bgcolor: "#1d1612",
+                  color: "#c8a45d",
+                  borderColor: "#1d1612",
+                },
               }}
             >
               <Badge badgeContent={count} color="secondary">
-                <ShoppingBagOutlinedIcon />
+                <ShoppingBagOutlinedIcon sx={{ fontSize: "1.2rem" }} />
               </Badge>
             </IconButton>
           </Toolbar>
 
+          {/* Mobile nav */}
           <Collapse in={menuOpen} timeout="auto" unmountOnExit>
-            <Box
-              sx={{
-                display: { xs: "block", md: "none" },
-                px: { xs: 1, sm: 2 },
-                pb: 1.25,
-              }}
-            >
-              <Box
-                sx={{
-                  borderTop: "1px solid rgba(17,17,17,0.10)",
-                  pt: 1,
-                }}
-              >
-                <Stack spacing={0.5}>
+            <Box sx={{ display: { xs: "block", md: "none" }, px: 1.5, pb: 1.5 }}>
+              <Box sx={{ borderTop: "1px solid rgba(67,48,34,0.10)", pt: 1 }}>
+                <Stack spacing={0.25}>
                   <MobileMenuButton to="/" end icon={<HomeOutlinedIcon />} label="Inicio" onClick={closeMenu} />
-                  <MobileMenuButton to="/products" icon={<StorefrontOutlinedIcon />} label="Productos" onClick={closeMenu} />
+                  <MobileMenuButton to="/products" icon={<StorefrontOutlinedIcon />} label="Perfumes" onClick={closeMenu} />
                   <MobileMenuButton to="/account" icon={<PersonOutlineIcon />} label="Mi cuenta" onClick={closeMenu} />
                   <Button
                     fullWidth
                     variant="contained"
                     startIcon={<ShoppingBagOutlinedIcon />}
-                    onClick={() => {
-                      closeMenu();
-                      setCartOpen(true);
-                    }}
-                    sx={{ mt: 0.5, justifyContent: "flex-start", borderRadius: 1 }}
+                    onClick={() => { closeMenu(); setCartOpen(true); }}
+                    sx={{ mt: 1, justifyContent: "flex-start", borderRadius: 1.5 }}
                   >
-                    Ver carrito ({count})
+                    Ver carrito {count > 0 ? `(${count})` : ""}
                   </Button>
                 </Stack>
               </Box>
             </Box>
           </Collapse>
 
+          {/* Cart dropdown */}
           <Collapse in={cartOpen} timeout="auto" unmountOnExit>
-            <Box
-              sx={{
-                px: { xs: 1, sm: 2 },
-                pb: 1.5,
-              }}
-            >
+            <Box sx={{ px: { xs: 1.5, sm: 2.5 }, pb: 2 }}>
               <CartDropdownContent onClose={closeCart} />
             </Box>
           </Collapse>
         </Container>
       </AppBar>
 
+      {/* Main content */}
       <Container
         component="main"
         maxWidth="lg"
-        sx={{ flexGrow: 1, py: { xs: 2, md: 4 }, px: { xs: 1.5, sm: 2, md: 3 } }}
+        sx={{ flexGrow: 1, py: { xs: 2.5, md: 4 }, px: { xs: 1.5, sm: 2.5, md: 3 } }}
       >
         <Outlet />
       </Container>
 
+      {/* Footer */}
       <Box
         component="footer"
         sx={{
-          borderTop: "1px solid rgba(17,17,17,0.08)",
-          bgcolor: "rgba(255,255,255,0.72)",
-          py: 2.5,
-          px: 2,
-          textAlign: "center",
+          borderTop: "1px solid rgba(67,48,34,0.10)",
+          bgcolor: "#fffdf8",
+          py: 3,
+          px: { xs: 2, sm: 3 },
         }}
       >
-        <Stack spacing={1.4} alignItems="center">
-          <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" useFlexGap>
-            {footerLinks.map((item) => (
-              <FooterIconLink key={item.label} href={item.href} label={item.label} icon={item.icon} text={item.text} />
-            ))}
+        <Container maxWidth="lg" disableGutters>
+          <Stack
+            direction={{ xs: "column", sm: "row" }}
+            alignItems={{ xs: "center", sm: "center" }}
+            justifyContent="space-between"
+            spacing={2}
+          >
+            {/* Brand in footer */}
+            <Box component={RouterLink} to="/" sx={{ textDecoration: "none", color: "inherit" }}>
+              <Stack direction="row" alignItems="center" spacing={1.25}>
+                <Box
+                  component="img"
+                  src={brandLogo}
+                  alt={`${BRAND.name} logo`}
+                  sx={{ height: 28, width: "auto" }}
+                />
+                <Box>
+                  <Typography sx={{ fontFamily: SERIF, fontWeight: 700, fontSize: "0.95rem", lineHeight: 1.1 }}>
+                    {settings.storeName || BRAND.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", color: "#c8a45d" }}>
+                    {BRAND.segment}
+                  </Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            {/* Social links */}
+            <Stack direction="row" spacing={0.75}>
+              {footerLinks.map((item) => (
+                <FooterIconLink key={item.label} href={item.href} label={item.label} icon={item.icon} />
+              ))}
+            </Stack>
           </Stack>
 
-          <Typography variant="body2" color="text.secondary">
-            Web creada por{" "}
-            <Box
-              component="a"
-              href="https://mi-portfolio-blond-eight.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                color: "text.primary",
-                fontWeight: 900,
-                textDecoration: "none",
-                "&:hover": { textDecoration: "underline" },
-              }}
-            >
-              Tetén
-            </Box>
-          </Typography>
-        </Stack>
+          <Divider sx={{ my: 2 }} />
+
+          <Stack direction={{ xs: "column", sm: "row" }} alignItems="center" justifyContent="space-between" spacing={1}>
+            <Typography variant="body2" color="text.disabled" sx={{ fontSize: "0.78rem" }}>
+              © {new Date().getFullYear()} {settings.storeName || BRAND.name}. Todos los derechos reservados.
+            </Typography>
+            <Typography variant="body2" color="text.disabled" sx={{ fontSize: "0.78rem" }}>
+              Web creada por{" "}
+              <Box
+                component="a"
+                href="https://mi-portfolio-blond-eight.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  color: "text.secondary",
+                  fontWeight: 800,
+                  textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                Tetén
+              </Box>
+            </Typography>
+          </Stack>
+        </Container>
       </Box>
 
       <BackgroundMusic />

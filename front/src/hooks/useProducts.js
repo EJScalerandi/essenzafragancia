@@ -3,7 +3,7 @@ import { apiFetch } from "../api/http.js";
 import { products as seedProducts } from "../data/products.js";
 
 async function fetchAllProducts() {
-  const pageSize = 100; // backend max
+  const pageSize = 100;
   let page = 1;
   let totalPages = 1;
   const all = [];
@@ -27,7 +27,9 @@ export function useProducts() {
     setLoading(true);
     try {
       const all = await fetchAllProducts();
-      setProducts(all);
+      setProducts(all.length ? all : seedProducts);
+    } catch {
+      setProducts(seedProducts);
     } finally {
       setLoading(false);
     }

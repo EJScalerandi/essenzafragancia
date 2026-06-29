@@ -14,12 +14,15 @@ export const DEFAULT_MUSIC = {
   tracks: [],
 };
 
+const _P = (id) =>
+  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=640&h=800&fit=crop`;
+
 export const DEFAULT_HOME_IMAGES = [
   {
     id: "hero-hawas-malibu",
     title: "HAWAS MALIBU",
-    fileName: "hawas-malibu.svg",
-    url: "/products/hawas-malibu.svg",
+    fileName: "hawas-malibu.jpg",
+    url: _P(3059609),
     enabled: true,
     sortOrder: 1,
     uploadedAt: "2026-05-22T00:00:00.000Z",
@@ -27,8 +30,8 @@ export const DEFAULT_HOME_IMAGES = [
   {
     id: "hero-yara-candy",
     title: "YARA CANDY",
-    fileName: "yara-candy.svg",
-    url: "/products/yara-candy.svg",
+    fileName: "yara-candy.jpg",
+    url: _P(965989),
     enabled: true,
     sortOrder: 2,
     uploadedAt: "2026-05-22T00:00:00.000Z",
@@ -36,8 +39,8 @@ export const DEFAULT_HOME_IMAGES = [
   {
     id: "hero-the-most-wanted",
     title: "The Most Wanted Azzaro 100ML",
-    fileName: "the-most-wanted-azzaro.svg",
-    url: "/products/the-most-wanted-azzaro.svg",
+    fileName: "the-most-wanted-azzaro.jpg",
+    url: _P(755992),
     enabled: true,
     sortOrder: 3,
     uploadedAt: "2026-05-22T00:00:00.000Z",
@@ -45,8 +48,8 @@ export const DEFAULT_HOME_IMAGES = [
   {
     id: "hero-combo-decants",
     title: "COMBO 5 DECANTS DE 5ML",
-    fileName: "combo-5-decants-5ml.svg",
-    url: "/products/combo-5-decants-5ml.svg",
+    fileName: "combo-5-decants-5ml.jpg",
+    url: _P(4041392),
     enabled: true,
     sortOrder: 4,
     uploadedAt: "2026-05-22T00:00:00.000Z",

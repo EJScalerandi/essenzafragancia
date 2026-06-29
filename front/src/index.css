@@ -1,8 +1,8 @@
 :root {
-  font-family: Inter, Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: "Inter", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   line-height: 1.5;
-  color: #111111;
-  background: #f7f4ef;
+  color: #1d1612;
+  background: #fbf6ee;
 }
 
 * { box-sizing: border-box; }
@@ -10,9 +10,29 @@ html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
-::selection { background: #111111; color: #ffffff; }
 
-/* Preview de estilo mas cuadrado: pisa redondeos grandes definidos con sx. */
+::selection {
+  background: #c8a45d;
+  color: #1d1612;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(29, 22, 18, 0.22);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(29, 22, 18, 0.38);
+}
+
+/* MUI border radius overrides — consistent rounded-rectangle style */
 .MuiPaper-root,
 .MuiCard-root,
 .MuiDialog-paper,
@@ -33,4 +53,17 @@ img { max-width: 100%; display: block; }
 
 .MuiDrawer-paper {
   border-radius: 0 !important;
+}
+
+/* Card image — ensure no gap under img */
+.MuiCardMedia-img {
+  display: block;
+}
+
+/* Smooth image load */
+img {
+  transition: opacity 0.3s ease;
+}
+img[src^="https://images.unsplash.com"] {
+  background-color: #f4eadb;
 }

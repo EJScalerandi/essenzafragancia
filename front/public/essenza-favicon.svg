@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Essenza Fragancia">
+  <!-- Dark espresso background with rounded corners -->
+  <rect width="128" height="128" rx="26" fill="#1d1612"/>
+  <!-- Subtle gold inner border -->
+  <rect x="6" y="6" width="116" height="116" rx="21" fill="none" stroke="#c8a45d" stroke-width="1.5" opacity="0.6"/>
+  <!-- Gold "E" letterform -->
+  <path d="M 28 22 L 100 22 L 100 40 L 46 40 L 46 55 L 86 55 L 86 73 L 46 73 L 46 88 L 100 88 L 100 106 L 28 106 Z" fill="#c8a45d"/>
+</svg>
