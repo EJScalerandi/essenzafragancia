@@ -69,13 +69,10 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          background: [
-            "radial-gradient(ellipse 90% 55% at -8% -8%, rgba(200,164,93,0.32) 0%, transparent 55%)",
-            "radial-gradient(ellipse 70% 50% at 108% 108%, rgba(93,63,36,0.16) 0%, transparent 55%)",
-            "radial-gradient(ellipse 55% 35% at 55% 115%, rgba(29,22,18,0.07) 0%, transparent 50%)",
-            "radial-gradient(ellipse 45% 28% at 100% 0%, rgba(200,164,93,0.12) 0%, transparent 45%)",
-            "linear-gradient(170deg, #fdf9f3 0%, #fbf4ea 45%, #f8efe4 100%)",
-          ].join(", "),
+          background: "transparent",
+        },
+        html: {
+          background: "#fbf6ee",
         },
       },
     },

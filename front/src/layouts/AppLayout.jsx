@@ -381,6 +381,52 @@ export default function AppLayout() {
 
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+
+      {/* ── Fondo ondas sinusoidales oblicuas ── */}
+      <Box
+        aria-hidden="true"
+        sx={{ position: "fixed", inset: 0, zIndex: -1, pointerEvents: "none", overflow: "hidden" }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="100%"
+          height="100%"
+          viewBox="0 0 1440 900"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {/* Base crema que cubre todo */}
+          <rect x="0" y="0" width="1440" height="900" fill="#fbf6ee" />
+
+          <g transform="rotate(-30, 720, 450)">
+            {/* Banda blanca: entre onda 1 (Y=0) y onda 2 (Y=400) */}
+            <path
+              d="M -200,0 Q -84,-110 31,0 Q 147,110 262,0 Q 378,-110 494,0 Q 609,110 725,0 Q 841,-110 956,0 Q 1072,110 1188,0 Q 1303,-110 1419,0 Q 1534,110 1650,0 L 1650,400 Q 1534,510 1419,400 Q 1303,290 1188,400 Q 1072,510 956,400 Q 841,290 725,400 Q 609,510 494,400 Q 378,290 262,400 Q 147,510 31,400 Q -84,290 -200,400 Z"
+              fill="rgba(255,255,255,0.90)"
+            />
+            {/* Banda blanca: entre onda 3 (Y=800) y el borde inferior */}
+            <path
+              d="M -200,800 Q -84,690 31,800 Q 147,910 262,800 Q 378,690 494,800 Q 609,910 725,800 Q 841,690 956,800 Q 1072,910 1188,800 Q 1303,690 1419,800 Q 1534,910 1650,800 L 1650,1280 L -200,1280 Z"
+              fill="rgba(255,255,255,0.88)"
+            />
+            {/* Línea dorada onda 1 */}
+            <path
+              d="M -200,0 Q -84,-110 31,0 Q 147,110 262,0 Q 378,-110 494,0 Q 609,110 725,0 Q 841,-110 956,0 Q 1072,110 1188,0 Q 1303,-110 1419,0 Q 1534,110 1650,0"
+              fill="none" stroke="rgba(200,164,93,0.40)" strokeWidth="1.8"
+            />
+            {/* Línea dorada onda 2 */}
+            <path
+              d="M -200,400 Q -84,290 31,400 Q 147,510 262,400 Q 378,290 494,400 Q 609,510 725,400 Q 841,290 956,400 Q 1072,510 1188,400 Q 1303,290 1419,400 Q 1534,510 1650,400"
+              fill="none" stroke="rgba(200,164,93,0.35)" strokeWidth="1.8"
+            />
+            {/* Línea dorada onda 3 */}
+            <path
+              d="M -200,800 Q -84,690 31,800 Q 147,910 262,800 Q 378,690 494,800 Q 609,910 725,800 Q 841,690 956,800 Q 1072,910 1188,800 Q 1303,690 1419,800 Q 1534,910 1650,800"
+              fill="none" stroke="rgba(200,164,93,0.38)" strokeWidth="1.8"
+            />
+          </g>
+        </svg>
+      </Box>
+
       <AppBar position="sticky" elevation={0}>
         <Container maxWidth={false} disableGutters sx={{ maxWidth: 1440, mx: "auto" }}>
           <Toolbar sx={{ gap: { xs: 0.5, sm: 1 }, px: { xs: 1.5, sm: 2.5 }, minHeight: { xs: 64, sm: 72 } }}>
