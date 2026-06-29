@@ -171,12 +171,29 @@ function ProductCard({ product, onAdd }) {
               lineHeight: 1.2,
               fontSize: "1rem",
               mb: 0.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              minHeight: "2.4em",
             }}
           >
             {product.name}
           </Typography>
 
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.8rem", lineHeight: 1.5 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              fontSize: "0.8rem",
+              lineHeight: 1.5,
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              minHeight: "3.6em",
+            }}
+          >
             {product.description}
           </Typography>
 
