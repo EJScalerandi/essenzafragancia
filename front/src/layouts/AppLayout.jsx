@@ -382,7 +382,7 @@ export default function AppLayout() {
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <AppBar position="sticky" elevation={0}>
-        <Container maxWidth="lg" disableGutters>
+        <Container maxWidth={false} disableGutters sx={{ maxWidth: 1440, mx: "auto" }}>
           <Toolbar sx={{ gap: { xs: 0.5, sm: 1 }, px: { xs: 1.5, sm: 2.5 }, minHeight: { xs: 64, sm: 72 } }}>
             {/* Mobile menu toggle */}
             <IconButton
@@ -477,13 +477,17 @@ export default function AppLayout() {
       </AppBar>
 
       {/* Main content */}
-      <Container
+      <Box
         component="main"
-        maxWidth="lg"
-        sx={{ flexGrow: 1, py: { xs: 2.5, md: 4 }, px: { xs: 1.5, sm: 2.5, md: 3 } }}
+        sx={{
+          flexGrow: 1,
+          width: "100%",
+          py: { xs: 2.5, md: 4 },
+          px: { xs: 1.5, sm: 2.5, md: 3 },
+        }}
       >
         <Outlet />
-      </Container>
+      </Box>
 
       {/* Footer */}
       <Box
@@ -495,7 +499,7 @@ export default function AppLayout() {
           px: { xs: 2, sm: 3 },
         }}
       >
-        <Container maxWidth="lg" disableGutters>
+        <Box sx={{ maxWidth: 1440, mx: "auto" }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             alignItems={{ xs: "center", sm: "center" }}
@@ -554,7 +558,7 @@ export default function AppLayout() {
               </Box>
             </Typography>
           </Stack>
-        </Container>
+        </Box>
       </Box>
 
       <BackgroundMusic />

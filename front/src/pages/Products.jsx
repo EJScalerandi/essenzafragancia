@@ -317,7 +317,7 @@ export default function Products() {
   };
 
   return (
-    <Box>
+    <Box sx={{ maxWidth: 1400, mx: "auto" }}>
       {/* Header */}
       <Stack spacing={0.5} sx={{ mb: 3 }}>
         <Typography variant="h3" sx={{ fontFamily: SERIF, fontWeight: 700, letterSpacing: "-0.02em" }}>

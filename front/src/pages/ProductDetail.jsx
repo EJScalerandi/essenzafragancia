@@ -147,7 +147,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <Stack spacing={3}>
+    <Stack spacing={3} sx={{ maxWidth: 1200, mx: "auto" }}>
       {/* Breadcrumb */}
       <Breadcrumbs sx={{ fontSize: "0.82rem" }}>
         <Link component={RouterLink} to="/" underline="hover" color="inherit" sx={{ fontWeight: 600 }}>

@@ -35,7 +35,7 @@ import { useProducts } from "../hooks/useProducts.js";
 import { useStore } from "../context/StoreContext.jsx";
 import { getMinPrice } from "../utils/pricing.js";
 
-const HOME_MAX_WIDTH = 1140;
+const HOME_MAX_WIDTH = 1400;
 const SERIF = '"Playfair Display", Georgia, serif';
 
 const money = new Intl.NumberFormat("es-AR", {
@@ -386,9 +386,9 @@ export default function Home() {
               },
             }}
           >
-            <Grid container sx={{ position: "relative", zIndex: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, position: "relative", zIndex: 1 }}>
               {/* Left: text */}
-              <Grid item xs={12} md={6} sx={{ p: { xs: 3, sm: 4, md: 5 } }}>
+              <Box sx={{ flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 3, sm: 4, md: 5 } }}>
                 <Stack spacing={3} alignItems={{ xs: "center", md: "flex-start" }} textAlign={{ xs: "center", md: "left" }}>
                   <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", justifyContent: { xs: "center", md: "flex-start" } }}>
                     <Chip label="3 cuotas sin interés" color="secondary" size="small" icon={<AutoAwesomeIcon sx={{ fontSize: "0.85rem !important" }} />} />
@@ -488,10 +488,10 @@ export default function Home() {
                     </Button>
                   </Stack>
                 </Stack>
-              </Grid>
+              </Box>
 
               {/* Right: images */}
-              <Grid item xs={12} md={6} sx={{ p: { xs: 2, md: 3 }, display: "flex", alignItems: "center" }}>
+              <Box sx={{ flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 2, md: 3 }, display: "flex", alignItems: "center" }}>
                 {heroImages.length ? (
                   <Box
                     sx={{
@@ -565,8 +565,8 @@ export default function Home() {
                     </Typography>
                   </Box>
                 )}
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
 
             {/* Bottom quote bar */}
             <Box
