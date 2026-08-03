@@ -12,8 +12,8 @@ const seedProducts = [
       "Oferta",
       "Destacado"
     ],
-    "image": "/products/hawas-malibu.svg",
-    "alternateImage": "/products/hawas-malibu.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -37,8 +37,8 @@ const seedProducts = [
       "Oferta",
       "Destacado"
     ],
-    "image": "/products/yara-candy.svg",
-    "alternateImage": "/products/yara-candy.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -61,8 +61,8 @@ const seedProducts = [
     "tags": [
       "Oferta"
     ],
-    "image": "/products/asad-elixir.svg",
-    "alternateImage": "/products/asad-elixir.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -85,8 +85,8 @@ const seedProducts = [
     "tags": [
       "Oferta"
     ],
-    "image": "/products/vulcan-feu.svg",
-    "alternateImage": "/products/vulcan-feu.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -110,8 +110,8 @@ const seedProducts = [
       "Oferta",
       "Destacado"
     ],
-    "image": "/products/the-most-wanted-azzaro.svg",
-    "alternateImage": "/products/the-most-wanted-azzaro.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -135,8 +135,8 @@ const seedProducts = [
       "Oferta",
       "Sin stock"
     ],
-    "image": "/products/mandarin-sky-elixir.svg",
-    "alternateImage": "/products/mandarin-sky-elixir.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -160,8 +160,8 @@ const seedProducts = [
       "Destacado",
       "Oferta"
     ],
-    "image": "/products/scandal-pour-homme-absolu-5ml.svg",
-    "alternateImage": "/products/scandal-pour-homme-absolu-5ml.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -185,8 +185,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/le-male-elixir.svg",
-    "alternateImage": "/products/le-male-elixir.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -210,8 +210,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/le-beau-le-parfum.svg",
-    "alternateImage": "/products/le-beau-le-parfum.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -235,8 +235,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/le-beau-paradise-garden.svg",
-    "alternateImage": "/products/le-beau-paradise-garden.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -260,8 +260,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/bad-boy-cobalt-elixir.svg",
-    "alternateImage": "/products/bad-boy-cobalt-elixir.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -285,8 +285,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/le-male-le-parfum.svg",
-    "alternateImage": "/products/le-male-le-parfum.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -310,8 +310,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/naxos-xerjoff.svg",
-    "alternateImage": "/products/naxos-xerjoff.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -335,8 +335,8 @@ const seedProducts = [
       "Destacado",
       "Sin stock"
     ],
-    "image": "/products/scandal-pour-homme-absolu.svg",
-    "alternateImage": "/products/scandal-pour-homme-absolu.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
@@ -360,8 +360,8 @@ const seedProducts = [
       "Nuevo",
       "Destacado"
     ],
-    "image": "/products/combo-5-decants-5ml.svg",
-    "alternateImage": "/products/combo-5-decants-5ml.svg",
+    "image": "",
+    "alternateImage": "",
     "variants": [
       {
         "color": "Presentación",
