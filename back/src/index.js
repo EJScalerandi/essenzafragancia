@@ -1,7 +1,7 @@
+require('dotenv').config();
+
 const { createApp } = require('./app');
 const { ensureDatabase } = require('./db/ensureDatabase');
-
-require('dotenv').config();
 
 async function main() {
   await ensureDatabase();

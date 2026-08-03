@@ -90,6 +90,20 @@ async function ensureWelcomePopupColumns() {
   `);
 }
 
+async function ensureAdminUsersTable() {
+  await query('create extension if not exists pgcrypto');
+  await query('create extension if not exists citext');
+  await query(`
+    create table if not exists public.admin_users (
+      id uuid primary key default gen_random_uuid(),
+      username citext not null unique,
+      password_hash text not null,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    )
+  `);
+}
+
 async function ensurePromotionsColumn() {
   await query(`
     alter table public.store_settings
@@ -194,6 +208,7 @@ async function ensureDatabase() {
   await ensureProductImageUploadColumns();
 
   await ensureCustomerProfileColumns();
+  await ensureAdminUsersTable();
   await ensureHomeImagesTable();
   await ensurePaymentColumns();
   await ensureChatPaymentColumns();

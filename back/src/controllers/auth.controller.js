@@ -1,5 +1,8 @@
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
+
+const { getAdminByUsername } = require('../services/admin.service');
 
 const loginSchema = z.object({
   username: z.string().min(1),
@@ -16,15 +19,13 @@ async function login(req, res, next) {
   try {
     const body = loginSchema.parse(req.body);
 
-    const adminUser = process.env.ADMIN_USERNAME || 'admin';
-    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
-
-    const ok = body.username === adminUser && body.password === adminPass;
+    const admin = await getAdminByUsername(body.username);
+    const ok = admin ? await bcrypt.compare(body.password, admin.passwordHash) : false;
     if (!ok) {
       return res.status(401).json({ error: 'InvalidCredentials', message: 'Usuario o contraseña inválidos' });
     }
 
-    const user = { username: adminUser, role: 'admin' };
+    const user = { username: admin.username, role: 'admin' };
     const token = signToken(user);
 
     return res.json({ token, user });
