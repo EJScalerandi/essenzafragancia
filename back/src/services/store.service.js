@@ -117,7 +117,7 @@ function normalizeHomeImages(value = []) {
   const images = Array.isArray(value) ? value : [];
   return images
     .filter((image) => image && image.url)
-    .slice(0, 8)
+    .slice(0, 4)
     .map(normalizeHomeImage)
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
@@ -530,8 +530,8 @@ async function createMusicTrackFromUpload({ id, title, fileName, url, mimeType, 
 async function createHomeImageFromUpload({ id, title, fileName, url, mimeType, sizeBytes, buffer }) {
   const settings = await getStoreSettings();
   const images = settings.homeImages || [];
-  if (images.length >= 8) {
-    const err = new Error('El máximo permitido es de 8 imágenes de portada');
+  if (images.length >= 4) {
+    const err = new Error('El máximo permitido es de 4 imágenes para el hero');
     err.status = 400;
     err.code = 'LimitExceeded';
     throw err;

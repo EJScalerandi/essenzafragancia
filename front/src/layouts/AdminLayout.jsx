@@ -69,7 +69,7 @@ export default function AdminLayout() {
         <NavItem to="/admin" end icon={<DashboardIcon />} label="Resumen" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/inbox" icon={<MailOutlineIcon />} label="Bandeja" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/products" icon={<Inventory2Icon />} label="Productos" onClick={() => setMobileOpen(false)} />
-        <NavItem to="/admin/home-images" icon={<PhotoLibraryOutlinedIcon />} label="Portada" onClick={() => setMobileOpen(false)} />
+        <NavItem to="/admin/home-images" icon={<PhotoLibraryOutlinedIcon />} label="Hero" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/orders" icon={<ReceiptLongIcon />} label="Órdenes" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/settings" icon={<SettingsIcon />} label="Configuración" onClick={() => setMobileOpen(false)} />
       </List>

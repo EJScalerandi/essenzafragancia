@@ -26,7 +26,7 @@ const homeImageSchema = z.object({
   fileName: z.string().max(180).optional().or(z.literal('')),
   url: z.string().min(1),
   enabled: z.boolean().optional(),
-  sortOrder: z.number().int().min(1).max(8).optional(),
+  sortOrder: z.number().int().min(1).max(4).optional(),
   uploadedAt: z.string().nullable().optional(),
 });
 
@@ -83,7 +83,7 @@ const promotionSchema = z.object({
 const patchSchema = z.object({
   storeName: z.string().min(1).max(60).optional(),
   music: musicSchema.optional(),
-  homeImages: z.array(homeImageSchema).max(8).optional(),
+  homeImages: z.array(homeImageSchema).max(4).optional(),
   payments: paymentsSchema.optional(),
   contactLinks: contactLinksSchema.optional(),
   welcomePopup: welcomePopupSchema.optional(),

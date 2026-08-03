@@ -74,11 +74,11 @@ export default function AdminHomeImages() {
     const selected = Array.from(files || []);
     if (!selected.length) return;
 
-    const freeSlots = Math.max(0, 8 - draft.length);
+    const freeSlots = Math.max(0, 4 - draft.length);
     const toUpload = selected.slice(0, freeSlots);
 
     if (!toUpload.length) {
-      showMessage("El máximo permitido es de 8 imágenes de portada.");
+      showMessage("El hero admite hasta 4 imágenes.");
       return;
     }
 
@@ -152,10 +152,10 @@ export default function AdminHomeImages() {
       <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} justifyContent="space-between" alignItems={{ xs: "stretch", sm: "center" }}>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 900 }}>
-            Portada
+            Hero del inicio
           </Typography>
           <Typography color="text.secondary">
-            Cargá, ocultá, eliminá o cambiá el orden de las imágenes que aparecen en la home.
+            Elegí las 4 imágenes que se muestran en el hero de la home. Cargá, ocultá, eliminá o cambiá el orden — solo las primeras 4 activas se muestran.
           </Typography>
         </Box>
 
@@ -179,7 +179,7 @@ export default function AdminHomeImages() {
               Imágenes activas: {enabledCount} / {draft.length}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Se aceptan JPG, PNG o WEBP. Máximo 8 imágenes y 8 MB por archivo.
+              Se aceptan JPG, PNG o WEBP. Máximo 4 imágenes y 8 MB por archivo.
             </Typography>
           </Box>
 
@@ -196,7 +196,7 @@ export default function AdminHomeImages() {
               startIcon={<AddPhotoAlternateIcon />}
               variant="contained"
               onClick={() => inputRef.current?.click()}
-              disabled={busy || draft.length >= 8}
+              disabled={busy || draft.length >= 4}
             >
               Cargar imágenes
             </Button>
@@ -263,8 +263,8 @@ export default function AdminHomeImages() {
 
       {!draft.length ? (
         <Paper sx={{ p: 4, textAlign: "center", borderRadius: 4 }}>
-          <Typography sx={{ fontWeight: 900 }}>No hay imágenes de portada</Typography>
-          <Typography color="text.secondary">Cargá una imagen para que aparezca en la home.</Typography>
+          <Typography sx={{ fontWeight: 900 }}>No hay imágenes en el hero</Typography>
+          <Typography color="text.secondary">Cargá hasta 4 imágenes para que aparezcan en el hero de la home.</Typography>
         </Paper>
       ) : null}
     </Stack>

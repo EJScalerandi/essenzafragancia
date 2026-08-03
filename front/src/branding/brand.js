@@ -118,7 +118,7 @@ export function normalizeHomeImages(value = DEFAULT_HOME_IMAGES) {
 
   return images
     .filter((image) => image && image.url)
-    .slice(0, 8)
+    .slice(0, 4)
     .map((image, index) => ({
       id: String(image.id || `home-image-${index + 1}`),
       title: String(image.title || image.fileName || `Imagen ${index + 1}`),
