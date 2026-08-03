@@ -68,6 +68,36 @@ async function ensurePaymentColumns() {
   `);
 }
 
+async function ensureChatPaymentColumns() {
+  await query(`
+    alter table public.store_settings
+      add column if not exists chat_payment_enabled boolean not null default true,
+      add column if not exists chat_payment_subtitle text not null default
+        '¿Preferís coordinar tu pago vos mismo? Escribinos por WhatsApp y lo resolvemos directo con vos.',
+      add column if not exists chat_payment_warning text not null default
+        'El monto puede variar según la cantidad de cuotas: el pago financiado puede estar sujeto a intereses.'
+  `);
+}
+
+async function ensureWelcomePopupColumns() {
+  await query(`
+    alter table public.store_settings
+      add column if not exists welcome_popup_enabled boolean not null default true,
+      add column if not exists welcome_popup_title text not null default 'Hola',
+      add column if not exists welcome_popup_subtitle text not null default 'Hacé tu pedido en simples pasos:',
+      add column if not exists welcome_popup_steps jsonb not null default
+        '["Elegí los productos que quieras","Revisá y completá tu pedido","¡Listo! Generamos tu pedido para que el comercio lo reciba por WhatsApp"]'::jsonb
+  `);
+}
+
+async function ensurePromotionsColumn() {
+  await query(`
+    alter table public.store_settings
+      add column if not exists promotions_json jsonb not null default
+        '[{"id":"perk-decant-5ml","title":"Decant de 5ML de regalo","description":"En compras desde $150.000 te llevás un decant de 5ML de regalo.","minAmount":150000,"enabled":true,"sortOrder":1}]'::jsonb
+  `);
+}
+
 async function ensureOrderPaymentProofColumns() {
   await query(`
     alter table public.orders
@@ -166,6 +196,9 @@ async function ensureDatabase() {
   await ensureCustomerProfileColumns();
   await ensureHomeImagesTable();
   await ensurePaymentColumns();
+  await ensureChatPaymentColumns();
+  await ensureWelcomePopupColumns();
+  await ensurePromotionsColumn();
   await ensureOrderSequences();
   await ensureOrderPaymentProofColumns();
   await ensureMpCheckoutDrafts();

@@ -343,6 +343,9 @@ export default function Products() {
         <Typography color="text.secondary" sx={{ fontSize: "0.9rem" }}>
           Fragancias diseñador, árabes, nicho y decants.
         </Typography>
+        <Typography variant="caption" color="text.disabled">
+          Los precios no incluyen el costo de envío.
+        </Typography>
       </Stack>
 
       {/* Filters */}

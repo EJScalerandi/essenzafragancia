@@ -64,9 +64,14 @@ export default function Cart() {
           <Divider />
 
           <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={2}>
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              Total: {money.format(total)}
-            </Typography>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                Total: {money.format(total)}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Precios sin envío. El costo se coordina por WhatsApp.
+              </Typography>
+            </Box>
 
             <Stack direction="row" spacing={1}>
               <Button variant="outlined" color="error" onClick={clear}>

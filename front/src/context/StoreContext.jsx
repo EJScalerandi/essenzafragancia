@@ -6,11 +6,15 @@ import {
   DEFAULT_HOME_IMAGES,
   DEFAULT_MUSIC,
   DEFAULT_PAYMENTS,
+  DEFAULT_PROMOTIONS,
+  DEFAULT_WELCOME_POPUP,
   normalizeContactLinks,
   normalizeHomeImages,
   normalizeMusicSettings,
   normalizePayments,
+  normalizePromotions,
   normalizeStoreName,
+  normalizeWelcomePopup,
 } from "../branding/brand.js";
 
 const StoreContext = createContext(null);
@@ -23,6 +27,8 @@ function normalizeSettings(value = {}) {
     homeImages: normalizeHomeImages(value.homeImages || DEFAULT_HOME_IMAGES),
     payments: normalizePayments(value.payments || DEFAULT_PAYMENTS),
     contactLinks: normalizeContactLinks(value.contactLinks || DEFAULT_CONTACT_LINKS),
+    welcomePopup: normalizeWelcomePopup(value.welcomePopup || DEFAULT_WELCOME_POPUP),
+    promotions: normalizePromotions(value.promotions || DEFAULT_PROMOTIONS),
   };
 }
 
@@ -34,6 +40,8 @@ export function StoreProvider({ children }) {
       homeImages: DEFAULT_HOME_IMAGES,
       payments: DEFAULT_PAYMENTS,
       contactLinks: DEFAULT_CONTACT_LINKS,
+      welcomePopup: DEFAULT_WELCOME_POPUP,
+      promotions: DEFAULT_PROMOTIONS,
     })
   );
 
@@ -46,6 +54,8 @@ export function StoreProvider({ children }) {
         homeImages: remote?.homeImages || DEFAULT_HOME_IMAGES,
         payments: remote?.payments || DEFAULT_PAYMENTS,
         contactLinks: remote?.contactLinks || DEFAULT_CONTACT_LINKS,
+        welcomePopup: remote?.welcomePopup || DEFAULT_WELCOME_POPUP,
+        promotions: remote?.promotions || DEFAULT_PROMOTIONS,
       });
       setSettings(next);
       return next;
@@ -56,6 +66,8 @@ export function StoreProvider({ children }) {
         homeImages: DEFAULT_HOME_IMAGES,
         payments: DEFAULT_PAYMENTS,
         contactLinks: DEFAULT_CONTACT_LINKS,
+        welcomePopup: DEFAULT_WELCOME_POPUP,
+        promotions: DEFAULT_PROMOTIONS,
       });
       setSettings(fallback);
       return fallback;
@@ -128,6 +140,34 @@ export function StoreProvider({ children }) {
     return normalized;
   }, []);
 
+  const setWelcomePopup = useCallback(async (welcomePopup) => {
+    const normalizedWelcomePopup = normalizeWelcomePopup(welcomePopup);
+    setSettings((current) => ({ ...current, welcomePopup: normalizedWelcomePopup }));
+
+    const updated = await apiFetch("/api/admin/store/settings", {
+      method: "PATCH",
+      body: JSON.stringify({ welcomePopup: normalizedWelcomePopup }),
+    });
+
+    const normalized = normalizeSettings(updated);
+    setSettings(normalized);
+    return normalized;
+  }, []);
+
+  const setPromotions = useCallback(async (promotions) => {
+    const normalizedPromotions = normalizePromotions(promotions);
+    setSettings((current) => ({ ...current, promotions: normalizedPromotions }));
+
+    const updated = await apiFetch("/api/admin/store/settings", {
+      method: "PATCH",
+      body: JSON.stringify({ promotions: normalizedPromotions }),
+    });
+
+    const normalized = normalizeSettings(updated);
+    setSettings(normalized);
+    return normalized;
+  }, []);
+
   const setContactLinks = useCallback(async (contactLinks) => {
     const normalizedContactLinks = normalizeContactLinks(contactLinks);
     setSettings((current) => ({ ...current, contactLinks: normalizedContactLinks }));
@@ -193,6 +233,8 @@ export function StoreProvider({ children }) {
       setHomeImages,
       setPaymentSettings,
       setContactLinks,
+      setWelcomePopup,
+      setPromotions,
       uploadMusicTrack,
       deleteMusicTrack,
       uploadHomeImage,
@@ -206,6 +248,8 @@ export function StoreProvider({ children }) {
       setHomeImages,
       setPaymentSettings,
       setContactLinks,
+      setWelcomePopup,
+      setPromotions,
       uploadMusicTrack,
       deleteMusicTrack,
       uploadHomeImage,

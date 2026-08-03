@@ -20,6 +20,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import SearchIcon from "@mui/icons-material/Search";
@@ -355,6 +356,12 @@ export default function Home() {
       .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
   }, [settings.homeImages]);
 
+  const promotions = useMemo(() => {
+    return (settings.promotions || [])
+      .filter((promo) => promo.enabled !== false)
+      .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
+  }, [settings.promotions]);
+
   const offers = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Oferta")).slice(0, 6), [products]);
   const featured = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Destacado")).slice(0, 6), [products]);
   const newest = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Nuevo")).slice(0, 6), [products]);
@@ -625,7 +632,7 @@ export default function Home() {
               {
                 icon: <LocalShippingOutlinedIcon />,
                 title: "Envíos por VIA CARGO",
-                text: "Coordinamos el costo y los detalles de entrega por WhatsApp según destino.",
+                text: "Coordinamos el costo y los detalles de entrega por WhatsApp según destino. Los precios no incluyen el envío.",
               },
               {
                 icon: <VerifiedOutlinedIcon />,
@@ -669,6 +676,58 @@ export default function Home() {
             ))}
           </Grid>
         </SectionShell>
+
+        {/* ── PROMOCIONES POR MONTO DE COMPRA ─────────────────── */}
+        {promotions.length > 0 && (
+          <SectionShell>
+            <SectionHeader
+              title="Beneficios por tu compra"
+              subtitle="Sumá regalos según el monto de tu pedido."
+            />
+            <Grid container spacing={2}>
+              {promotions.map((promo) => (
+                <Grid item xs={12} sm={6} md={4} key={promo.id}>
+                  <Paper
+                    sx={{
+                      p: 2.5,
+                      height: "100%",
+                      border: "1px solid rgba(200,164,93,0.32)",
+                      bgcolor: "rgba(200,164,93,0.08)",
+                    }}
+                  >
+                    <Stack direction="row" spacing={2} alignItems="flex-start">
+                      <Box
+                        sx={{
+                          width: 46,
+                          height: 46,
+                          borderRadius: 1.5,
+                          bgcolor: "#1d1612",
+                          color: "#c8a45d",
+                          display: "grid",
+                          placeItems: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <CardGiftcardIcon />
+                      </Box>
+                      <Stack spacing={0.4}>
+                        <Typography sx={{ fontWeight: 900, fontSize: "0.95rem", lineHeight: 1.25 }}>
+                          {promo.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ fontSize: "0.82rem", lineHeight: 1.5 }}>
+                          {promo.description}
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: "#a9812f" }}>
+                          Desde {money.format(promo.minAmount)}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </SectionShell>
+        )}
 
         {/* ── CATEGORIES ───────────────────────────────────────── */}
         {categories.length > 0 && (

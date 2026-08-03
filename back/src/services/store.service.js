@@ -3,11 +3,39 @@ const { query, withClient } = require('../db/postgres');
 const BANK_TRANSFER_MESSAGE =
   'Con transferencia o depósito tenés precio especial. Coordinamos la acreditación y el envío por WhatsApp.';
 
+const CHAT_PAYMENT_SUBTITLE =
+  '¿Preferís coordinar tu pago vos mismo? Escribinos por WhatsApp y lo resolvemos directo con vos.';
+
+const CHAT_PAYMENT_WARNING =
+  'El monto puede variar según la cantidad de cuotas: el pago financiado puede estar sujeto a intereses.';
+
 const DEFAULT_MUSIC = {
   enabled: false,
   mode: 'sequential',
   tracks: [],
 };
+
+const DEFAULT_WELCOME_POPUP = {
+  enabled: true,
+  title: 'Hola',
+  subtitle: 'Hacé tu pedido en simples pasos:',
+  steps: [
+    'Elegí los productos que quieras',
+    'Revisá y completá tu pedido',
+    '¡Listo! Generamos tu pedido para que el comercio lo reciba por WhatsApp',
+  ],
+};
+
+const DEFAULT_PROMOTIONS = [
+  {
+    id: 'perk-decant-5ml',
+    title: 'Decant de 5ML de regalo',
+    description: 'En compras desde $150.000 te llevás un decant de 5ML de regalo.',
+    minAmount: 150000,
+    enabled: true,
+    sortOrder: 1,
+  },
+];
 
 const DEFAULT_HOME_IMAGES = [
   { id: 'hero-hawas-malibu', title: 'HAWAS MALIBU', fileName: 'hawas-malibu.svg', url: '/products/hawas-malibu.svg', enabled: true, sortOrder: 1, uploadedAt: '2026-05-22T00:00:00.000Z' },
@@ -27,6 +55,11 @@ const DEFAULT_PAYMENTS = {
     cuit: '20462263970',
     instructions: BANK_TRANSFER_MESSAGE,
   },
+  chatPayment: {
+    enabled: true,
+    subtitle: CHAT_PAYMENT_SUBTITLE,
+    warning: CHAT_PAYMENT_WARNING,
+  },
 };
 
 const DEFAULT_CONTACT_LINKS = {
@@ -43,6 +76,8 @@ const DEFAULT_STORE = {
   homeImages: DEFAULT_HOME_IMAGES,
   payments: DEFAULT_PAYMENTS,
   contactLinks: DEFAULT_CONTACT_LINKS,
+  welcomePopup: DEFAULT_WELCOME_POPUP,
+  promotions: DEFAULT_PROMOTIONS,
 };
 
 function normalizeTrack(track, index) {
@@ -96,6 +131,7 @@ function normalizePayments(value = {}) {
   const payments = value && typeof value === 'object' ? value : {};
   const bank = payments.bankTransfer && typeof payments.bankTransfer === 'object' ? payments.bankTransfer : {};
   const mp = payments.mercadopago && typeof payments.mercadopago === 'object' ? payments.mercadopago : {};
+  const chat = payments.chatPayment && typeof payments.chatPayment === 'object' ? payments.chatPayment : {};
 
   return {
     mercadopago: {
@@ -110,7 +146,47 @@ function normalizePayments(value = {}) {
       cuit: String(bank.cuit || DEFAULT_PAYMENTS.bankTransfer.cuit),
       instructions: String(bank.instructions || BANK_TRANSFER_MESSAGE),
     },
+    chatPayment: {
+      enabled: chat.enabled !== false,
+      subtitle: String(chat.subtitle || CHAT_PAYMENT_SUBTITLE),
+      warning: String(chat.warning || CHAT_PAYMENT_WARNING),
+    },
   };
+}
+
+function normalizeWelcomePopup(value = {}) {
+  const popup = value && typeof value === 'object' ? value : {};
+  const steps = Array.isArray(popup.steps) ? popup.steps : DEFAULT_WELCOME_POPUP.steps;
+
+  return {
+    enabled: popup.enabled !== false,
+    title: String(popup.title || DEFAULT_WELCOME_POPUP.title).trim() || DEFAULT_WELCOME_POPUP.title,
+    subtitle: String(popup.subtitle || DEFAULT_WELCOME_POPUP.subtitle).trim(),
+    steps: steps
+      .map((step) => String(step || '').trim())
+      .filter(Boolean)
+      .slice(0, 6),
+  };
+}
+
+function normalizePromotion(promo, index) {
+  return {
+    id: String(promo.id || `perk-${index + 1}`),
+    title: String(promo.title || '').trim(),
+    description: String(promo.description || '').trim(),
+    minAmount: Number.isFinite(Number(promo.minAmount)) ? Number(promo.minAmount) : 0,
+    enabled: promo.enabled !== false,
+    sortOrder: Number.isFinite(Number(promo.sortOrder)) ? Number(promo.sortOrder) : index + 1,
+  };
+}
+
+function normalizePromotions(value = []) {
+  const promotions = Array.isArray(value) ? value : [];
+  return promotions
+    .filter((promo) => promo && String(promo.title || '').trim())
+    .slice(0, 20)
+    .map(normalizePromotion)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 }
 
 function normalizeContactLinks(value = {}) {
@@ -133,6 +209,8 @@ function normalizeStoreSettings(value = {}) {
     homeImages: normalizeHomeImages(value.homeImages || DEFAULT_HOME_IMAGES),
     payments: normalizePayments(value.payments || DEFAULT_PAYMENTS),
     contactLinks: normalizeContactLinks(value.contactLinks || DEFAULT_CONTACT_LINKS),
+    welcomePopup: normalizeWelcomePopup(value.welcomePopup || DEFAULT_WELCOME_POPUP),
+    promotions: normalizePromotions(value.promotions || DEFAULT_PROMOTIONS),
   };
 }
 
@@ -172,6 +250,20 @@ function mapPayments(row) {
       cuit: row.bank_transfer_cuit || DEFAULT_PAYMENTS.bankTransfer.cuit,
       instructions: row.bank_transfer_instructions || BANK_TRANSFER_MESSAGE,
     },
+    chatPayment: {
+      enabled: row.chat_payment_enabled !== false,
+      subtitle: row.chat_payment_subtitle || CHAT_PAYMENT_SUBTITLE,
+      warning: row.chat_payment_warning || CHAT_PAYMENT_WARNING,
+    },
+  });
+}
+
+function mapWelcomePopup(row) {
+  return normalizeWelcomePopup({
+    enabled: row.welcome_popup_enabled !== false,
+    title: row.welcome_popup_title || DEFAULT_WELCOME_POPUP.title,
+    subtitle: row.welcome_popup_subtitle || DEFAULT_WELCOME_POPUP.subtitle,
+    steps: Array.isArray(row.welcome_popup_steps) ? row.welcome_popup_steps : DEFAULT_WELCOME_POPUP.steps,
   });
 }
 
@@ -191,8 +283,11 @@ async function getStoreSettings() {
             mercadopago_enabled,
             bank_transfer_enabled, bank_transfer_account_holder, bank_transfer_bank_name,
             bank_transfer_alias, bank_transfer_cbu, bank_transfer_cuit, bank_transfer_instructions,
+            chat_payment_enabled, chat_payment_subtitle, chat_payment_warning,
             contact_instagram_url, contact_facebook_url, contact_whatsapp_number,
-            contact_address_text, contact_address_url
+            contact_address_text, contact_address_url,
+            welcome_popup_enabled, welcome_popup_title, welcome_popup_subtitle, welcome_popup_steps,
+            promotions_json
        from public.store_settings
       where id = true
       limit 1`
@@ -253,6 +348,8 @@ async function getStoreSettings() {
     homeImages: homeImageRows.map(mapHomeImage),
     payments: mapPayments(settings),
     contactLinks: mapContactLinks(settings),
+    welcomePopup: mapWelcomePopup(settings),
+    promotions: normalizePromotions(settings.promotions_json || DEFAULT_PROMOTIONS),
   });
 }
 
@@ -325,9 +422,18 @@ async function updateStoreSettings(patch) {
     const current = await getStoreSettings();
     const nextMusic = patch.music ? normalizeMusicSettings({ ...current.music, ...patch.music }) : current.music;
     const nextHomeImages = Array.isArray(patch.homeImages) ? normalizeHomeImages(patch.homeImages) : current.homeImages;
-    const nextPayments = patch.payments ? normalizePayments({ ...current.payments, ...patch.payments }) : current.payments;
+    const nextPayments = patch.payments
+      ? normalizePayments({
+          ...current.payments,
+          ...patch.payments,
+          bankTransfer: { ...current.payments.bankTransfer, ...(patch.payments.bankTransfer || {}) },
+          chatPayment: { ...current.payments.chatPayment, ...(patch.payments.chatPayment || {}) },
+        })
+      : current.payments;
     const nextContactLinks = patch.contactLinks ? normalizeContactLinks({ ...current.contactLinks, ...patch.contactLinks }) : current.contactLinks;
     const nextStoreName = patch.storeName ? String(patch.storeName).trim() : current.storeName;
+    const nextWelcomePopup = patch.welcomePopup ? normalizeWelcomePopup({ ...current.welcomePopup, ...patch.welcomePopup }) : current.welcomePopup;
+    const nextPromotions = Array.isArray(patch.promotions) ? normalizePromotions(patch.promotions) : current.promotions;
 
     await client.query(
       `insert into public.store_settings
@@ -335,9 +441,12 @@ async function updateStoreSettings(patch) {
          mercadopago_enabled, bank_transfer_enabled, bank_transfer_account_holder,
          bank_transfer_bank_name, bank_transfer_alias, bank_transfer_cbu,
          bank_transfer_cuit, bank_transfer_instructions,
+         chat_payment_enabled, chat_payment_subtitle, chat_payment_warning,
          contact_instagram_url, contact_facebook_url, contact_whatsapp_number,
-         contact_address_text, contact_address_url)
-       values (true, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+         contact_address_text, contact_address_url,
+         welcome_popup_enabled, welcome_popup_title, welcome_popup_subtitle, welcome_popup_steps,
+         promotions_json)
+       values (true, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23::jsonb, $24::jsonb)
        on conflict (id) do update set
          store_name = excluded.store_name,
          music_enabled = excluded.music_enabled,
@@ -350,11 +459,19 @@ async function updateStoreSettings(patch) {
          bank_transfer_cbu = excluded.bank_transfer_cbu,
          bank_transfer_cuit = excluded.bank_transfer_cuit,
          bank_transfer_instructions = excluded.bank_transfer_instructions,
+         chat_payment_enabled = excluded.chat_payment_enabled,
+         chat_payment_subtitle = excluded.chat_payment_subtitle,
+         chat_payment_warning = excluded.chat_payment_warning,
          contact_instagram_url = excluded.contact_instagram_url,
          contact_facebook_url = excluded.contact_facebook_url,
          contact_whatsapp_number = excluded.contact_whatsapp_number,
          contact_address_text = excluded.contact_address_text,
-         contact_address_url = excluded.contact_address_url`,
+         contact_address_url = excluded.contact_address_url,
+         welcome_popup_enabled = excluded.welcome_popup_enabled,
+         welcome_popup_title = excluded.welcome_popup_title,
+         welcome_popup_subtitle = excluded.welcome_popup_subtitle,
+         welcome_popup_steps = excluded.welcome_popup_steps,
+         promotions_json = excluded.promotions_json`,
       [
         nextStoreName || DEFAULT_STORE.storeName,
         nextMusic.enabled === true,
@@ -367,11 +484,19 @@ async function updateStoreSettings(patch) {
         nextPayments.bankTransfer.cbu || '',
         nextPayments.bankTransfer.cuit || DEFAULT_PAYMENTS.bankTransfer.cuit,
         nextPayments.bankTransfer.instructions || BANK_TRANSFER_MESSAGE,
+        nextPayments.chatPayment.enabled !== false,
+        nextPayments.chatPayment.subtitle || CHAT_PAYMENT_SUBTITLE,
+        nextPayments.chatPayment.warning || CHAT_PAYMENT_WARNING,
         nextContactLinks.instagramUrl || '',
         nextContactLinks.facebookUrl || '',
         nextContactLinks.whatsappNumber || DEFAULT_CONTACT_LINKS.whatsappNumber,
         nextContactLinks.addressText || '',
         nextContactLinks.addressUrl || '',
+        nextWelcomePopup.enabled === true,
+        nextWelcomePopup.title || DEFAULT_WELCOME_POPUP.title,
+        nextWelcomePopup.subtitle || '',
+        JSON.stringify(nextWelcomePopup.steps || []),
+        JSON.stringify(nextPromotions || []),
       ]
     );
 
@@ -482,7 +607,9 @@ module.exports = {
   DEFAULT_HOME_IMAGES,
   DEFAULT_MUSIC,
   DEFAULT_PAYMENTS,
+  DEFAULT_PROMOTIONS,
   DEFAULT_STORE,
+  DEFAULT_WELCOME_POPUP,
   createHomeImageFromUpload,
   createMusicTrackFromUpload,
   deleteHomeImageById,
@@ -494,5 +621,7 @@ module.exports = {
   normalizeHomeImages,
   normalizeMusicSettings,
   normalizePayments,
+  normalizePromotions,
+  normalizeWelcomePopup,
   updateStoreSettings,
 };

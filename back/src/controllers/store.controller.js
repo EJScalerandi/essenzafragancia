@@ -49,6 +49,11 @@ const paymentsSchema = z.object({
     cuit: z.string().max(40).optional(),
     instructions: z.string().max(900).optional(),
   }).optional(),
+  chatPayment: z.object({
+    enabled: z.boolean().optional(),
+    subtitle: z.string().max(300).optional(),
+    warning: z.string().max(300).optional(),
+  }).optional(),
 });
 
 const contactLinksSchema = z.object({
@@ -59,12 +64,30 @@ const contactLinksSchema = z.object({
   addressUrl: z.string().max(500).optional(),
 });
 
+const welcomePopupSchema = z.object({
+  enabled: z.boolean().optional(),
+  title: z.string().min(1).max(120).optional(),
+  subtitle: z.string().max(300).optional(),
+  steps: z.array(z.string().min(1).max(240)).max(6).optional(),
+});
+
+const promotionSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1).max(120),
+  description: z.string().min(1).max(300),
+  minAmount: z.number().nonnegative(),
+  enabled: z.boolean().optional(),
+  sortOrder: z.number().int().min(1).max(50).optional(),
+});
+
 const patchSchema = z.object({
   storeName: z.string().min(1).max(60).optional(),
   music: musicSchema.optional(),
   homeImages: z.array(homeImageSchema).max(8).optional(),
   payments: paymentsSchema.optional(),
   contactLinks: contactLinksSchema.optional(),
+  welcomePopup: welcomePopupSchema.optional(),
+  promotions: z.array(promotionSchema).max(20).optional(),
 });
 
 const uploadSchema = z.object({

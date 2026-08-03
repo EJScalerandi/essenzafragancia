@@ -37,6 +37,7 @@ import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 import BackgroundMusic from "../components/BackgroundMusic.jsx";
+import WelcomePopup from "../components/WelcomePopup.jsx";
 
 const SERIF = '"Playfair Display", Georgia, serif';
 
@@ -298,6 +299,9 @@ function CartDropdownContent({ onClose }) {
                 {money.format(total)}
               </Typography>
             </Stack>
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: -0.75 }}>
+              Precios sin envío.
+            </Typography>
 
             <Stack direction="row" spacing={1}>
               <Button component={RouterLink} to="/cart" variant="outlined" onClick={onClose} fullWidth>
@@ -608,6 +612,7 @@ export default function AppLayout() {
       </Box>
 
       <BackgroundMusic />
+      <WelcomePopup />
     </Box>
   );
 }

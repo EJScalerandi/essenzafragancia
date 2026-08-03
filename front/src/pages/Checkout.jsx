@@ -23,6 +23,7 @@ import Typography from "@mui/material/Typography";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import { useCart } from "../context/CartContext.jsx";
 import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
@@ -177,6 +178,23 @@ function formatFileSize(bytes) {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function buildWhatsAppUrl(number, text) {
+  const digits = String(number || "").replace(/\D+/g, "");
+  if (!digits) return "";
+  return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
+}
+
+function buildCartSummaryMessage({ items, total, fullName }) {
+  const lines = items.map(
+    (i) => `• ${i.name}${i.variant ? ` (${i.variant.color} / ${i.variant.size})` : ""} x${i.qty} - ${money.format(i.price * i.qty)}`
+  );
+
+  const parts = ["¡Hola! Quiero coordinar el pago de mi pedido:", "", ...lines, "", `Total: ${money.format(total)}`];
+  if (fullName?.trim()) parts.push(`Nombre: ${fullName.trim()}`);
+
+  return parts.join("\n");
+}
+
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, total, clear } = useCart();
@@ -202,6 +220,7 @@ export default function Checkout() {
   const payments = settings.payments || {};
   const bankTransfer = payments.bankTransfer || {};
   const mp = payments.mercadopago || {};
+  const chatPayment = payments.chatPayment || {};
   const bankInstructions = bankTransfer.instructions || BANK_TRANSFER_MESSAGE;
 
   const [form, setForm] = useState({
@@ -242,6 +261,7 @@ export default function Checkout() {
     if (isEmpty || submitting || buyerBooting || loadingProof) return false;
     if (paymentMethod === "bank_transfer" && bankTransfer.enabled === false) return false;
     if (paymentMethod === "mercadopago" && mp.enabled === false) return false;
+    if (paymentMethod === "chat_whatsapp" && chatPayment.enabled === false) return false;
 
     const baseOk =
       form.fullName.trim() &&
@@ -259,7 +279,7 @@ export default function Checkout() {
     }
 
     return true;
-  }, [form, isEmpty, buyerUser, buyerBooting, createAccount, password, paymentMethod, bankTransfer.enabled, mp.enabled, submitting, loadingProof]);
+  }, [form, isEmpty, buyerUser, buyerBooting, createAccount, password, paymentMethod, bankTransfer.enabled, mp.enabled, chatPayment.enabled, submitting, loadingProof]);
 
   const onChange = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -393,6 +413,19 @@ export default function Checkout() {
     e.preventDefault();
     setError("");
     if (!canSubmit) return;
+
+    if (paymentMethod === "chat_whatsapp") {
+      const text = buildCartSummaryMessage({ items, total, fullName: form.fullName });
+      const url = buildWhatsAppUrl(settings.contactLinks?.whatsappNumber, text);
+      if (!url) {
+        setError("No hay un número de WhatsApp configurado para coordinar el pago.");
+        return;
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+      setSnackMessage("Te llevamos a WhatsApp para coordinar tu pago.");
+      setSnack(true);
+      return;
+    }
 
     if (paymentMethod === "bank_transfer") {
       setPaymentProof(null);
@@ -559,6 +592,17 @@ export default function Checkout() {
                         Los datos bancarios se muestran al confirmar la compra, junto con la carga del comprobante.
                       </Alert>
                     </PaymentOption>
+
+                    <PaymentOption
+                      selected={paymentMethod === "chat_whatsapp"}
+                      disabled={chatPayment.enabled === false}
+                      icon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
+                      title="Chatea con nosotros"
+                      subtitle={chatPayment.subtitle}
+                      onClick={() => setPaymentMethod("chat_whatsapp")}
+                    >
+                      <Alert severity="warning">{chatPayment.warning}</Alert>
+                    </PaymentOption>
                   </Stack>
                 </Box>
 
@@ -569,7 +613,13 @@ export default function Checkout() {
                     disabled={!canSubmit}
                     startIcon={submitting || buyerBooting || loadingProof ? <CircularProgress size={18} color="inherit" /> : null}
                   >
-                    {buyerBooting ? "Cargando cuenta..." : paymentMethod === "mercadopago" ? "Ir a Mercado Pago" : "Confirmar compra"}
+                    {buyerBooting
+                      ? "Cargando cuenta..."
+                      : paymentMethod === "mercadopago"
+                      ? "Ir a Mercado Pago"
+                      : paymentMethod === "chat_whatsapp"
+                      ? "Continuar por WhatsApp"
+                      : "Confirmar compra"}
                   </Button>
                   <Button component={RouterLink} to="/cart" variant="outlined" disabled={submitting}>
                     Volver al carrito
@@ -602,6 +652,9 @@ export default function Checkout() {
                 <Typography sx={{ fontWeight: 900 }}>Total</Typography>
                 <Typography sx={{ fontWeight: 900 }}>{money.format(total)}</Typography>
               </Stack>
+              <Typography variant="caption" color="text.secondary">
+                Precios sin envío. El costo de envío se coordina por WhatsApp según el destino.
+              </Typography>
             </Stack>
           </Paper>
         </Grid>

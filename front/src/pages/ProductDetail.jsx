@@ -290,6 +290,10 @@ export default function ProductDetail() {
                   </Typography>
                 )}
 
+                <Typography variant="caption" color="text.disabled">
+                  Precio sin costo de envío.
+                </Typography>
+
                 {transferPrice > 0 && (
                   <>
                     <Divider sx={{ my: 0.5 }} />

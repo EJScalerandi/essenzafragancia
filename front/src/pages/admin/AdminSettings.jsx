@@ -19,13 +19,33 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
+import AddIcon from "@mui/icons-material/Add";
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import WavingHandIcon from "@mui/icons-material/WavingHand";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import { buildApiUrl } from "../../api/http.js";
-import { DEFAULT_CONTACT_LINKS, DEFAULT_PAYMENTS, normalizeContactLinks, normalizeMusicSettings, normalizePayments } from "../../branding/brand.js";
+import {
+  DEFAULT_CONTACT_LINKS,
+  DEFAULT_PAYMENTS,
+  DEFAULT_PROMOTIONS,
+  DEFAULT_WELCOME_POPUP,
+  normalizeContactLinks,
+  normalizeMusicSettings,
+  normalizePayments,
+  normalizePromotions,
+  normalizeWelcomePopup,
+} from "../../branding/brand.js";
 import { useStore } from "../../context/StoreContext.jsx";
+
+const money = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+  maximumFractionDigits: 0,
+});
 
 const MAX_TRACKS = 10;
 const MAX_FILE_MB = 18;
@@ -55,6 +75,8 @@ export default function AdminSettings() {
     setMusicSettings,
     setPaymentSettings,
     setContactLinks,
+    setWelcomePopup,
+    setPromotions,
     uploadMusicTrack,
     deleteMusicTrack,
   } = useStore();
@@ -65,6 +87,8 @@ export default function AdminSettings() {
   const [musicDraft, setMusicDraft] = useState(() => normalizeMusicSettings(settings.music));
   const [paymentsDraft, setPaymentsDraft] = useState(() => normalizePayments(settings.payments || DEFAULT_PAYMENTS));
   const [contactDraft, setContactDraft] = useState(() => normalizeContactLinks(settings.contactLinks || DEFAULT_CONTACT_LINKS));
+  const [popupDraft, setPopupDraft] = useState(() => normalizeWelcomePopup(settings.welcomePopup || DEFAULT_WELCOME_POPUP));
+  const [promotionsDraft, setPromotionsDraft] = useState(() => normalizePromotions(settings.promotions || DEFAULT_PROMOTIONS));
   const [status, setStatus] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -74,6 +98,8 @@ export default function AdminSettings() {
     setMusicDraft(normalizeMusicSettings(settings.music));
     setPaymentsDraft(normalizePayments(settings.payments || DEFAULT_PAYMENTS));
     setContactDraft(normalizeContactLinks(settings.contactLinks || DEFAULT_CONTACT_LINKS));
+    setPopupDraft(normalizeWelcomePopup(settings.welcomePopup || DEFAULT_WELCOME_POPUP));
+    setPromotionsDraft(normalizePromotions(settings.promotions || DEFAULT_PROMOTIONS));
   }, [settings]);
 
   const showSuccess = (message) => {
@@ -108,6 +134,51 @@ export default function AdminSettings() {
 
   const updateContact = (key, value) => {
     setContactDraft((current) => ({ ...current, [key]: value }));
+  };
+
+  const updatePopupField = (key, value) => {
+    setPopupDraft((current) => normalizeWelcomePopup({ ...current, [key]: value }));
+  };
+
+  const updatePopupStep = (index, value) => {
+    setPopupDraft((current) => {
+      const steps = [...current.steps];
+      steps[index] = value;
+      return { ...current, steps };
+    });
+  };
+
+  const addPopupStep = () => {
+    setPopupDraft((current) => {
+      if (current.steps.length >= 6) return current;
+      return { ...current, steps: [...current.steps, ""] };
+    });
+  };
+
+  const removePopupStep = (index) => {
+    setPopupDraft((current) => ({ ...current, steps: current.steps.filter((_, i) => i !== index) }));
+  };
+
+  const updatePromotion = (id, patch) => {
+    setPromotionsDraft((current) => current.map((promo) => (promo.id === id ? { ...promo, ...patch } : promo)));
+  };
+
+  const addPromotion = () => {
+    setPromotionsDraft((current) => [
+      ...current,
+      {
+        id: `perk-${Date.now().toString(36)}`,
+        title: "",
+        description: "",
+        minAmount: 0,
+        enabled: true,
+        sortOrder: current.length + 1,
+      },
+    ]);
+  };
+
+  const removePromotion = (id) => {
+    setPromotionsDraft((current) => current.filter((promo) => promo.id !== id));
   };
 
   const onSaveStoreName = async () => {
@@ -157,6 +228,34 @@ export default function AdminSettings() {
       showSuccess("Links de contacto guardados");
     } catch (err) {
       setError(err.message || "No se pudieron guardar los links de contacto");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSaveWelcomePopup = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await setWelcomePopup(popupDraft);
+      showSuccess("Popup de bienvenida guardado");
+    } catch (err) {
+      setError(err.message || "No se pudo guardar el popup de bienvenida");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSavePromotions = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const invalid = promotionsDraft.some((promo) => !promo.title.trim() || !promo.description.trim());
+      if (invalid) throw new Error("Completá título y descripción en todas las promociones.");
+      await setPromotions(promotionsDraft);
+      showSuccess("Promociones guardadas");
+    } catch (err) {
+      setError(err.message || "No se pudieron guardar las promociones");
     } finally {
       setLoading(false);
     }
@@ -435,11 +534,198 @@ export default function AdminSettings() {
                 </Stack>
               </Paper>
             </Grid>
+
+            <Grid item xs={12}>
+              <Paper variant="outlined" sx={{ p: 2 }}>
+                <Stack spacing={2}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={paymentsDraft.chatPayment.enabled !== false}
+                        onChange={(event) => updatePayment("chatPayment", "enabled", event.target.checked)}
+                      />
+                    }
+                    label={
+                      <Stack direction="row" spacing={0.75} alignItems="center">
+                        <WhatsAppIcon sx={{ fontSize: "1.1rem", color: "#25D366" }} />
+                        <span>Chatea con nosotros activo</span>
+                      </Stack>
+                    }
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    Lleva al comprador a WhatsApp con un resumen del carrito para coordinar el pago directamente.
+                  </Typography>
+
+                  <TextField
+                    label="Subtítulo mostrado en el checkout"
+                    value={paymentsDraft.chatPayment.subtitle}
+                    onChange={(e) => updatePayment("chatPayment", "subtitle", e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={2}
+                  />
+                  <TextField
+                    label="Advertencia sobre intereses por cuotas"
+                    value={paymentsDraft.chatPayment.warning}
+                    onChange={(e) => updatePayment("chatPayment", "warning", e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={2}
+                  />
+                </Stack>
+              </Paper>
+            </Grid>
           </Grid>
 
           <Button variant="contained" onClick={onSavePayments} disabled={loading}>
             Guardar formas de pago
           </Button>
+        </Stack>
+      </Paper>
+
+      <Paper sx={{ p: { xs: 2, sm: 2.5 } }}>
+        <Stack spacing={2}>
+          <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" spacing={1}>
+            <Box>
+              <Typography sx={{ fontWeight: 950 }}>Popup de bienvenida</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Se muestra una vez por visita al ingresar a la tienda.
+              </Typography>
+            </Box>
+            <Chip icon={<WavingHandIcon />} label={popupDraft.enabled ? "Activo" : "Inactivo"} />
+          </Stack>
+
+          <Divider />
+
+          <FormControlLabel
+            control={<Switch checked={popupDraft.enabled !== false} onChange={(e) => updatePopupField("enabled", e.target.checked)} />}
+            label={popupDraft.enabled !== false ? "Activado" : "Desactivado"}
+          />
+
+          <Grid container spacing={1.5}>
+            <Grid item xs={12} sm={5}>
+              <TextField label="Título" value={popupDraft.title} onChange={(e) => updatePopupField("title", e.target.value)} fullWidth />
+            </Grid>
+            <Grid item xs={12} sm={7}>
+              <TextField label="Subtítulo" value={popupDraft.subtitle} onChange={(e) => updatePopupField("subtitle", e.target.value)} fullWidth />
+            </Grid>
+          </Grid>
+
+          <Stack spacing={1.25}>
+            <Typography variant="body2" sx={{ fontWeight: 800 }}>Pasos numerados</Typography>
+            {popupDraft.steps.map((step, index) => (
+              <Stack key={index} direction="row" spacing={1} alignItems="center">
+                <Chip label={index + 1} size="small" sx={{ fontWeight: 900 }} />
+                <TextField
+                  value={step}
+                  onChange={(e) => updatePopupStep(index, e.target.value)}
+                  fullWidth
+                  size="small"
+                  placeholder={`Paso ${index + 1}`}
+                />
+                <IconButton color="error" onClick={() => removePopupStep(index)} aria-label="Eliminar paso">
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </Stack>
+            ))}
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={addPopupStep}
+              disabled={popupDraft.steps.length >= 6}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Agregar paso
+            </Button>
+          </Stack>
+
+          <Button variant="contained" onClick={onSaveWelcomePopup} disabled={loading} sx={{ alignSelf: "flex-start" }}>
+            Guardar popup de bienvenida
+          </Button>
+        </Stack>
+      </Paper>
+
+      <Paper sx={{ p: { xs: 2, sm: 2.5 } }}>
+        <Stack spacing={2}>
+          <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" spacing={1}>
+            <Box>
+              <Typography sx={{ fontWeight: 950 }}>Promociones por monto de compra</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Por ejemplo: "con compras desde $150.000 te llevás un decant de 5ml de regalo". Se muestran en el inicio.
+              </Typography>
+            </Box>
+            <Chip icon={<CardGiftcardIcon />} label={`${promotionsDraft.filter((p) => p.enabled !== false).length}/${promotionsDraft.length} activas`} />
+          </Stack>
+
+          <Divider />
+
+          {promotionsDraft.length === 0 ? (
+            <Alert severity="info">Todavía no hay promociones cargadas.</Alert>
+          ) : (
+            <Stack spacing={1.5}>
+              {promotionsDraft.map((promo) => (
+                <Paper key={promo.id} variant="outlined" sx={{ p: 1.5, borderRadius: 3 }}>
+                  <Grid container spacing={1.5} alignItems="center">
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        label="Título"
+                        value={promo.title}
+                        onChange={(e) => updatePromotion(promo.id, { title: e.target.value })}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <TextField
+                        label="Descripción"
+                        value={promo.description}
+                        onChange={(e) => updatePromotion(promo.id, { description: e.target.value })}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={2}>
+                      <TextField
+                        label="Monto mínimo"
+                        type="number"
+                        value={promo.minAmount}
+                        onChange={(e) => updatePromotion(promo.id, { minAmount: Number(e.target.value) || 0 })}
+                        fullWidth
+                        size="small"
+                        helperText={money.format(promo.minAmount || 0)}
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={4} md={1}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={promo.enabled !== false}
+                            onChange={(e) => updatePromotion(promo.id, { enabled: e.target.checked })}
+                          />
+                        }
+                        label={promo.enabled !== false ? "Activa" : "Inactiva"}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={4} md={1}>
+                      <IconButton color="error" onClick={() => removePromotion(promo.id)} aria-label="Eliminar promoción">
+                        <DeleteOutlineIcon />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+
+          <Stack direction="row" spacing={1.5}>
+            <Button variant="outlined" startIcon={<AddIcon />} onClick={addPromotion}>
+              Nueva promoción
+            </Button>
+            <Button variant="contained" onClick={onSavePromotions} disabled={loading}>
+              Guardar promociones
+            </Button>
+          </Stack>
         </Stack>
       </Paper>
 
