@@ -33,6 +33,7 @@ import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import brandLogo from "../assets/essenza-logo.svg";
+import { resolveMediaUrl } from "../api/http.js";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
@@ -234,7 +235,7 @@ function CartDropdownContent({ onClose }) {
                 >
                   <Avatar
                     variant="rounded"
-                    src={i.image}
+                    src={resolveMediaUrl(i.image)}
                     alt={i.name}
                     sx={{
                       width: 52,

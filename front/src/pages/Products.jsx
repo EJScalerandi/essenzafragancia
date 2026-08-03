@@ -27,6 +27,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import TuneIcon from "@mui/icons-material/Tune";
 
+import { resolveMediaUrl } from "../api/http.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useProducts } from "../hooks/useProducts.js";
 import { getMinPrice } from "../utils/pricing.js";
@@ -85,7 +86,7 @@ function ProductCard({ product, onAdd }) {
           {product.image ? (
             <Box
               component="img"
-              src={product.image}
+              src={resolveMediaUrl(product.image)}
               alt={product.name}
               sx={{
                 width: "100%",

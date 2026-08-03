@@ -28,6 +28,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
+import { resolveMediaUrl } from "../api/http.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useProducts } from "../hooks/useProducts.js";
 import { useStore } from "../context/StoreContext.jsx";
@@ -180,7 +181,7 @@ export default function ProductDetail() {
               {product.image ? (
                 <Box
                   component="img"
-                  src={product.image}
+                  src={resolveMediaUrl(product.image)}
                   alt={product.name}
                   sx={{
                     width: "100%",

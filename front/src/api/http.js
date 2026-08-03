@@ -9,6 +9,13 @@ export function buildApiUrl(path) {
   return `${API_BASE}${path}`;
 }
 
+export function resolveMediaUrl(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.startsWith("/media/")) return buildApiUrl(url);
+  return url;
+}
+
 async function request(path, options = {}, tokenKey) {
   const url = buildApiUrl(path);
   const token = tokenKey ? localStorage.getItem(tokenKey) : null;

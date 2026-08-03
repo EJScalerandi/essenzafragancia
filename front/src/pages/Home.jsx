@@ -28,7 +28,7 @@ import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
-import { buildApiUrl } from "../api/http.js";
+import { resolveMediaUrl } from "../api/http.js";
 import brandLogo from "../assets/essenza-logo.svg";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
@@ -50,13 +50,6 @@ function tagColor(tag) {
   if (tag === "Nuevo") return "success";
   if (tag === "Destacado") return "secondary";
   return "default";
-}
-
-function resolveImageUrl(url) {
-  if (!url) return "";
-  if (/^https?:\/\//i.test(url)) return url;
-  if (url.startsWith("/media/")) return buildApiUrl(url);
-  return url;
 }
 
 function hasStock(product) {
@@ -112,8 +105,8 @@ function SectionHeader({ title, subtitle, actionTo, italic }) {
 
 function ProductCard({ product, onAdd }) {
   const [hovered, setHovered] = useState(false);
-  const mainImage = resolveImageUrl(product.image);
-  const alternateImage = resolveImageUrl(product.alternateImage || product.image);
+  const mainImage = resolveMediaUrl(product.image);
+  const alternateImage = resolveMediaUrl(product.alternateImage || product.image);
   const outOfStock = !hasStock(product);
   const price = getMinPrice(product);
   const compareAtPrice = Number(product.compareAtPrice || product.variants?.[0]?.compareAtPrice || 0);
@@ -531,7 +524,7 @@ export default function Home() {
                       <Box
                         key={image.id || image.url}
                         component="img"
-                        src={resolveImageUrl(image.url)}
+                        src={resolveMediaUrl(image.url)}
                         alt={image.title || `Imagen ${idx + 1}`}
                         sx={{
                           width: "100%",

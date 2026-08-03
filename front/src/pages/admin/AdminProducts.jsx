@@ -26,7 +26,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-import { apiFetch } from "../../api/http.js";
+import { apiFetch, resolveMediaUrl } from "../../api/http.js";
 import { useProducts } from "../../hooks/useProducts.js";
 import { getMinPrice } from "../../utils/pricing.js";
 
@@ -360,7 +360,7 @@ export default function AdminProducts() {
                 <Typography variant="caption" sx={{ fontWeight: 900 }}>Principal</Typography>
                 <Box
                   component="img"
-                  src={form.image || ""}
+                  src={resolveMediaUrl(form.image) || ""}
                   alt="Imagen principal"
                   sx={{ display: form.image ? "block" : "none", mt: 1, width: "100%", height: 160, objectFit: "contain", bgcolor: "#f5f1eb", borderRadius: 2 }}
                 />
@@ -389,7 +389,7 @@ export default function AdminProducts() {
                 <Typography variant="caption" sx={{ fontWeight: 900 }}>Alternativa hover</Typography>
                 <Box
                   component="img"
-                  src={form.alternateImage || form.image || ""}
+                  src={resolveMediaUrl(form.alternateImage || form.image) || ""}
                   alt="Imagen alternativa"
                   sx={{ display: (form.alternateImage || form.image) ? "block" : "none", mt: 1, width: "100%", height: 160, objectFit: "contain", bgcolor: "#f5f1eb", borderRadius: 2 }}
                 />
