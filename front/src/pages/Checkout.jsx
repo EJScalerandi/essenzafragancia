@@ -471,7 +471,7 @@ export default function Checkout() {
       {error ? <Alert severity="error">{error}</Alert> : null}
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Paper sx={{ p: 2 }}>
             <form onSubmit={onSubmit}>
               <Stack spacing={3}>
@@ -479,11 +479,11 @@ export default function Checkout() {
                   <Typography sx={{ fontWeight: 900, mb: 1 }}>Datos de envío</Typography>
 
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <TextField label="Nombre y apellido" value={form.fullName} onChange={onChange("fullName")} fullWidth required />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField
                         label="Email"
                         value={form.email}
@@ -495,23 +495,23 @@ export default function Checkout() {
                       />
                     </Grid>
 
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="Teléfono" value={form.phone} onChange={onChange("phone")} fullWidth required />
                     </Grid>
 
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <TextField label="Dirección" value={form.address} onChange={onChange("address")} fullWidth required />
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <TextField label="Ciudad" value={form.city} onChange={onChange("city")} fullWidth required />
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <TextField label="Provincia" value={form.province} onChange={onChange("province")} fullWidth required />
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{ xs: 12, sm: 4 }}>
                       <TextField label="Código postal" value={form.zip} onChange={onChange("zip")} fullWidth required />
                     </Grid>
                   </Grid>
@@ -630,17 +630,17 @@ export default function Checkout() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Paper sx={{ p: 2 }}>
             <Typography sx={{ fontWeight: 900, mb: 1 }}>Resumen</Typography>
 
             <Stack spacing={1}>
               {items.map((i) => (
-                <Stack key={i.id} direction="row" justifyContent="space-between">
-                  <Typography variant="body2">
+                <Stack key={i.id} direction="row" justifyContent="space-between" spacing={1}>
+                  <Typography variant="body2" sx={{ minWidth: 0 }}>
                     {i.name}{i.variant ? ` (${i.variant.color} / ${i.variant.size})` : ""} x{i.qty}
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 800, flexShrink: 0, whiteSpace: "nowrap" }}>
                     {money.format(i.price * i.qty)}
                   </Typography>
                 </Stack>

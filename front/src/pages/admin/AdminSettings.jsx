@@ -334,7 +334,7 @@ export default function AdminSettings() {
       {error ? <Alert severity="error">{error}</Alert> : null}
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Paper sx={{ p: { xs: 2, sm: 2.5 }, height: "100%" }}>
             <Typography sx={{ fontWeight: 950, mb: 1 }}>Datos de tienda</Typography>
             <Stack spacing={2}>
@@ -346,7 +346,7 @@ export default function AdminSettings() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Paper sx={{ p: { xs: 2, sm: 2.5 }, height: "100%" }}>
             <Stack spacing={2}>
               <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" spacing={1}>
@@ -403,7 +403,7 @@ export default function AdminSettings() {
           </Box>
 
           <Grid container spacing={1.5}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Link de Instagram"
                 value={contactDraft.instagramUrl}
@@ -412,7 +412,7 @@ export default function AdminSettings() {
                 placeholder="https://instagram.com/tuusuario"
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Link de Facebook"
                 value={contactDraft.facebookUrl}
@@ -421,7 +421,7 @@ export default function AdminSettings() {
                 placeholder="https://facebook.com/tupagina"
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Número de WhatsApp"
                 value={contactDraft.whatsappNumber}
@@ -431,7 +431,7 @@ export default function AdminSettings() {
                 helperText="Usá código de país y característica. Ej: 54911XXXXXXXX"
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Detalle de dirección"
                 value={contactDraft.addressText}
@@ -441,7 +441,7 @@ export default function AdminSettings() {
                 helperText="Este texto queda como referencia interna y ayuda al icono de dirección."
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 label="Punto en Google Maps"
                 value={contactDraft.addressUrl}
@@ -474,7 +474,7 @@ export default function AdminSettings() {
           <Divider />
 
           <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <Paper variant="outlined" sx={{ p: 2, height: "100%" }}>
                 <FormControlLabel
                   control={
@@ -491,7 +491,7 @@ export default function AdminSettings() {
               </Paper>
             </Grid>
 
-            <Grid item xs={12} md={8}>
+            <Grid size={{ xs: 12, md: 8 }}>
               <Paper variant="outlined" sx={{ p: 2 }}>
                 <Stack spacing={2}>
                   <FormControlLabel
@@ -505,22 +505,22 @@ export default function AdminSettings() {
                   />
 
                   <Grid container spacing={1.5}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="Titular" value={paymentsDraft.bankTransfer.accountHolder} onChange={(e) => updatePayment("bankTransfer", "accountHolder", e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="Banco" value={paymentsDraft.bankTransfer.bankName} onChange={(e) => updatePayment("bankTransfer", "bankName", e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="Alias" value={paymentsDraft.bankTransfer.alias} onChange={(e) => updatePayment("bankTransfer", "alias", e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="CBU / CVU" value={paymentsDraft.bankTransfer.cbu} onChange={(e) => updatePayment("bankTransfer", "cbu", e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <TextField label="CUIT" value={paymentsDraft.bankTransfer.cuit} onChange={(e) => updatePayment("bankTransfer", "cuit", e.target.value)} fullWidth />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                       <TextField
                         label="Mensaje para compradores"
                         value={paymentsDraft.bankTransfer.instructions}
@@ -535,7 +535,7 @@ export default function AdminSettings() {
               </Paper>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Paper variant="outlined" sx={{ p: 2 }}>
                 <Stack spacing={2}>
                   <FormControlLabel
@@ -603,10 +603,10 @@ export default function AdminSettings() {
           />
 
           <Grid container spacing={1.5}>
-            <Grid item xs={12} sm={5}>
+            <Grid size={{ xs: 12, sm: 5 }}>
               <TextField label="Título" value={popupDraft.title} onChange={(e) => updatePopupField("title", e.target.value)} fullWidth />
             </Grid>
-            <Grid item xs={12} sm={7}>
+            <Grid size={{ xs: 12, sm: 7 }}>
               <TextField label="Subtítulo" value={popupDraft.subtitle} onChange={(e) => updatePopupField("subtitle", e.target.value)} fullWidth />
             </Grid>
           </Grid>
@@ -667,7 +667,7 @@ export default function AdminSettings() {
               {promotionsDraft.map((promo) => (
                 <Paper key={promo.id} variant="outlined" sx={{ p: 1.5, borderRadius: 3 }}>
                   <Grid container spacing={1.5} alignItems="center">
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         label="Título"
                         value={promo.title}
@@ -676,7 +676,7 @@ export default function AdminSettings() {
                         size="small"
                       />
                     </Grid>
-                    <Grid item xs={12} md={4}>
+                    <Grid size={{ xs: 12, md: 4 }}>
                       <TextField
                         label="Descripción"
                         value={promo.description}
@@ -685,7 +685,7 @@ export default function AdminSettings() {
                         size="small"
                       />
                     </Grid>
-                    <Grid item xs={6} sm={4} md={2}>
+                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                       <TextField
                         label="Monto mínimo"
                         type="number"
@@ -696,7 +696,7 @@ export default function AdminSettings() {
                         helperText={money.format(promo.minAmount || 0)}
                       />
                     </Grid>
-                    <Grid item xs={6} sm={4} md={1}>
+                    <Grid size={{ xs: 6, sm: 4, md: 1 }}>
                       <FormControlLabel
                         control={
                           <Switch
@@ -707,7 +707,7 @@ export default function AdminSettings() {
                         label={promo.enabled !== false ? "Activa" : "Inactiva"}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={4} md={1}>
+                    <Grid size={{ xs: 12, sm: 4, md: 1 }}>
                       <IconButton color="error" onClick={() => removePromotion(promo.id)} aria-label="Eliminar promoción">
                         <DeleteOutlineIcon />
                       </IconButton>
@@ -747,10 +747,10 @@ export default function AdminSettings() {
         ) : (
           <Grid container spacing={1.5}>
             {musicDraft.tracks.map((track, index) => (
-              <Grid item xs={12} key={track.id}>
+              <Grid size={{ xs: 12 }} key={track.id}>
                 <Paper variant="outlined" sx={{ p: { xs: 1.25, sm: 1.5 }, borderRadius: 3 }}>
                   <Grid container spacing={1.5} alignItems="center">
-                    <Grid item xs={12} md={5}>
+                    <Grid size={{ xs: 12, md: 5 }}>
                       <Stack direction="row" spacing={1.25} alignItems="center">
                         <Box
                           sx={{
@@ -775,7 +775,7 @@ export default function AdminSettings() {
                       </Stack>
                     </Grid>
 
-                    <Grid item xs={6} sm={3} md={2}>
+                    <Grid size={{ xs: 6, sm: 3, md: 2 }}>
                       <TextField
                         label="Orden"
                         type="number"
@@ -786,14 +786,14 @@ export default function AdminSettings() {
                       />
                     </Grid>
 
-                    <Grid item xs={6} sm={4} md={2}>
+                    <Grid size={{ xs: 6, sm: 4, md: 2 }}>
                       <FormControlLabel
                         control={<Switch checked={track.enabled !== false} onChange={(e) => updateTrack(track.id, { enabled: e.target.checked })} />}
                         label={track.enabled === false ? "Inactivo" : "Activo"}
                       />
                     </Grid>
 
-                    <Grid item xs={12} sm={5} md={3}>
+                    <Grid size={{ xs: 12, sm: 5, md: 3 }}>
                       <Stack direction="row" spacing={1} justifyContent={{ xs: "space-between", sm: "flex-end" }} alignItems="center">
                         <audio controls preload="metadata" src={track.url.startsWith("/media/") ? buildApiUrl(track.url) : track.url} style={{ maxWidth: 170 }}>
                           Tu navegador no soporta audio.

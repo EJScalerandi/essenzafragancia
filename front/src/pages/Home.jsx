@@ -326,7 +326,7 @@ function ProductSection({ title, subtitle, products, actionTo, onAdd, italic }) 
       <SectionHeader title={title} subtitle={subtitle} actionTo={actionTo} italic={italic} />
       <Grid container spacing={2.5} justifyContent="center" sx={{ overflow: "visible" }}>
         {products.map((product) => (
-          <Grid item xs={12} sm={6} md={4} key={product.id} sx={{ overflow: "visible", display: "flex" }}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product.id} sx={{ overflow: "visible", display: "flex" }}>
             <ProductCard product={product} onAdd={onAdd} />
           </Grid>
         ))}
@@ -640,7 +640,7 @@ export default function Home() {
                 text: "Diseñador, árabes, nicho y decants de 5ML seleccionados.",
               },
             ].map(({ icon, title, text }) => (
-              <Grid item xs={12} sm={4} key={title}>
+              <Grid size={{ xs: 12, sm: 4 }} key={title}>
                 <Paper
                   sx={{
                     p: 2.5,
@@ -686,7 +686,7 @@ export default function Home() {
             />
             <Grid container spacing={2}>
               {promotions.map((promo) => (
-                <Grid item xs={12} sm={6} md={4} key={promo.id}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={promo.id}>
                   <Paper
                     sx={{
                       p: 2.5,

@@ -301,31 +301,31 @@ export default function Account() {
 
             <form onSubmit={saveProfile}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField label="Nombre" value={profile.firstName} onChange={onProfileChange("firstName")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField label="Apellido" value={profile.lastName} onChange={onProfileChange("lastName")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField label="Teléfono" value={profile.phone} onChange={onProfileChange("phone")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField label="Email" value={user.email} fullWidth disabled />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <TextField label="Dirección" value={profile.address} onChange={onProfileChange("address")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField label="Ciudad" value={profile.city} onChange={onProfileChange("city")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField label="Provincia" value={profile.province} onChange={onProfileChange("province")} fullWidth />
                 </Grid>
-                <Grid item xs={12} sm={4}>
+                <Grid size={{ xs: 12, sm: 4 }}>
                   <TextField label="Código postal" value={profile.zip} onChange={onProfileChange("zip")} fullWidth />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
                     <Button type="submit" variant="contained" disabled={savingProfile}>
                       {savingProfile ? "Guardando..." : "Guardar datos"}

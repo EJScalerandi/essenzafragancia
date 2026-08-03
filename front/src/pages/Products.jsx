@@ -458,7 +458,7 @@ export default function Products() {
       {/* Grid */}
       <Grid container spacing={2.5}>
         {paginated.map((p) => (
-          <Grid item xs={12} sm={6} md={4} key={p.id} sx={{ display: "flex" }}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={p.id} sx={{ display: "flex" }}>
             <ProductCard product={p} onAdd={handleAdd} />
           </Grid>
         ))}

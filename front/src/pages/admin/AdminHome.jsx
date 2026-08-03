@@ -21,7 +21,7 @@ export default function AdminHome() {
       </Typography>
 
       <Grid container spacing={2}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2 }}>
             <Typography color="text.secondary">Productos</Typography>
             <Typography variant="h4" sx={{ fontWeight: 900 }}>
@@ -30,7 +30,7 @@ export default function AdminHome() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2 }}>
             <Typography color="text.secondary">Variantes</Typography>
             <Typography variant="h4" sx={{ fontWeight: 900 }}>
@@ -39,7 +39,7 @@ export default function AdminHome() {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Paper sx={{ p: 2 }}>
             <Typography color="text.secondary">Tags</Typography>
             <Typography variant="h4" sx={{ fontWeight: 900 }}>

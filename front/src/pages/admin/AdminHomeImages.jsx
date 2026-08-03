@@ -206,7 +206,7 @@ export default function AdminHomeImages() {
 
       <Grid container spacing={2}>
         {draft.map((image, index) => (
-          <Grid item xs={12} sm={6} md={4} key={image.id}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={image.id}>
             <Card sx={{ height: "100%", borderRadius: 4, overflow: "hidden", border: "1px solid rgba(17,17,17,0.08)" }}>
               <CardMedia
                 component="img"

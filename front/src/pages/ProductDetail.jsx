@@ -163,7 +163,7 @@ export default function ProductDetail() {
 
       <Grid container spacing={{ xs: 3, md: 5 }}>
         {/* ── IMAGE COLUMN ── */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Box sx={{ position: { md: "sticky" }, top: { md: 90 } }}>
             <Box
               sx={{
@@ -216,7 +216,7 @@ export default function ProductDetail() {
         </Grid>
 
         {/* ── INFO COLUMN ── */}
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Stack spacing={3}>
             {/* Category + Tags */}
             <Stack direction="row" spacing={1} flexWrap="wrap">
