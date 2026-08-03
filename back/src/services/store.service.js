@@ -37,12 +37,7 @@ const DEFAULT_PROMOTIONS = [
   },
 ];
 
-const DEFAULT_HOME_IMAGES = [
-  { id: 'hero-hawas-malibu', title: 'HAWAS MALIBU', fileName: 'hawas-malibu.svg', url: '/products/hawas-malibu.svg', enabled: true, sortOrder: 1, uploadedAt: '2026-05-22T00:00:00.000Z' },
-  { id: 'hero-yara-candy', title: 'YARA CANDY', fileName: 'yara-candy.svg', url: '/products/yara-candy.svg', enabled: true, sortOrder: 2, uploadedAt: '2026-05-22T00:00:00.000Z' },
-  { id: 'hero-the-most-wanted', title: 'The Most Wanted Azzaro 100ML', fileName: 'the-most-wanted-azzaro.svg', url: '/products/the-most-wanted-azzaro.svg', enabled: true, sortOrder: 3, uploadedAt: '2026-05-22T00:00:00.000Z' },
-  { id: 'hero-combo-decants', title: 'COMBO 5 DECANTS DE 5ML', fileName: 'combo-5-decants-5ml.svg', url: '/products/combo-5-decants-5ml.svg', enabled: true, sortOrder: 4, uploadedAt: '2026-05-22T00:00:00.000Z' },
-];
+const DEFAULT_HOME_IMAGES = [];
 
 const DEFAULT_PAYMENTS = {
   mercadopago: { enabled: true },
