@@ -15,8 +15,8 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [username, setUsername] = useState("admin");
-  const [password, setPassword] = useState("admin123");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const from = location.state?.from || "/admin";
@@ -36,11 +36,8 @@ export default function Login() {
   return (
     <Stack alignItems="center" sx={{ mt: 6, px: 2 }}>
       <Paper sx={{ p: 3, width: "100%", maxWidth: 420 }}>
-        <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>
+        <Typography variant="h5" sx={{ fontWeight: 900, mb: 2 }}>
           Admin Login
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Mock: admin / admin123
         </Typography>
 
         {error ? (
