@@ -18,7 +18,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 import AddIcon from "@mui/icons-material/Add";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -455,21 +454,6 @@ export default function AppLayout() {
               <NavButton to="/" end>Inicio</NavButton>
               <NavButton to="/products">Perfumes</NavButton>
               <NavButton to="/account">Mi cuenta</NavButton>
-              <Button
-                component={RouterNavLink}
-                to="/admin"
-                color="inherit"
-                startIcon={<AdminPanelSettingsIcon sx={{ fontSize: "0.95rem" }} />}
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.88rem",
-                  color: "text.secondary",
-                  borderRadius: 1.5,
-                  px: 1.6,
-                }}
-              >
-                Admin
-              </Button>
             </Stack>
 
             {/* Cart button */}
