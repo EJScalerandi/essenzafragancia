@@ -23,6 +23,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
+import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -72,6 +73,7 @@ export default function AdminLayout() {
         <NavItem to="/admin/home-images" icon={<PhotoLibraryOutlinedIcon />} label="Hero" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/orders" icon={<ReceiptLongIcon />} label="Órdenes" onClick={() => setMobileOpen(false)} />
         <NavItem to="/admin/settings" icon={<SettingsIcon />} label="Configuración" onClick={() => setMobileOpen(false)} />
+        <NavItem to="/admin/manual" icon={<MenuBookOutlinedIcon />} label="Manual" onClick={() => setMobileOpen(false)} />
       </List>
 
       <Divider sx={{ my: 1 }} />

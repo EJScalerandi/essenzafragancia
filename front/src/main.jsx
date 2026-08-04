@@ -40,6 +40,7 @@ import AdminInbox from "./pages/admin/AdminInbox.jsx";
 import AdminSettings from "./pages/admin/AdminSettings.jsx";
 import AdminHomeImages from "./pages/admin/AdminHomeImages.jsx";
 import AdminOrderDetail from "./pages/admin/AdminOrderDetail.jsx";
+import AdminManual from "./pages/admin/AdminManual.jsx";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,7 @@ const router = createBrowserRouter([
       { path: "orders", element: <AdminOrders /> },
       { path: "orders/:id", element: <AdminOrderDetail /> },
       { path: "settings", element: <AdminSettings /> },
+      { path: "manual", element: <AdminManual /> },
     ],
   },
 ]);
