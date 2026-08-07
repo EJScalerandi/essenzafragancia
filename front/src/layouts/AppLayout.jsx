@@ -31,7 +31,7 @@ import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import StorefrontOutlinedIcon from "@mui/icons-material/StorefrontOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
-import brandLogo from "../assets/essenza-logo.svg";
+import brandLogo from "../assets/essenza-mark.png";
 import { resolveMediaUrl } from "../api/http.js";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";

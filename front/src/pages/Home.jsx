@@ -29,7 +29,7 @@ import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import { resolveMediaUrl } from "../api/http.js";
-import brandLogo from "../assets/essenza-logo.svg";
+import brandLogo from "../assets/essenza-logo.png";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useProducts } from "../hooks/useProducts.js";
@@ -462,7 +462,7 @@ export default function Home() {
                     />
                   </Stack>
 
-                  <Box component="img" src={brandLogo} alt={`${BRAND.name} logo`} sx={{ width: { xs: 180, sm: 230 }, maxWidth: "100%", filter: "drop-shadow(0 2px 8px rgba(29,22,18,0.14))" }} />
+                  <Box component="img" src={brandLogo} alt={`${BRAND.name} logo`} sx={{ height: { xs: 130, sm: 165 }, width: "auto", maxWidth: "100%", filter: "drop-shadow(0 2px 8px rgba(29,22,18,0.14))" }} />
 
                   <Box>
                     <Typography
