@@ -349,6 +349,9 @@ export default function Home() {
       .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
   }, [settings.homeImages]);
 
+  // El Hero usa una sola imagen (la primera habilitada) como fondo completo.
+  const heroImage = heroImages[0] || null;
+
   const promotions = useMemo(() => {
     return (settings.promotions || [])
       .filter((promo) => promo.enabled !== false)
@@ -403,13 +406,60 @@ export default function Home() {
               },
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, position: "relative", zIndex: 1 }}>
-              {/* Left: text */}
-              <Box sx={{ flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 3, sm: 4, md: 5 } }}>
+            <Box
+              sx={{
+                position: "relative",
+                display: "flex",
+                flexDirection: { xs: "column", md: heroImage ? "column" : "row" },
+                zIndex: 1,
+                minHeight: heroImage ? { xs: 460, md: 560 } : "auto",
+                ...(heroImage
+                  ? {
+                      bgcolor: "#1d1612",
+                      backgroundImage: `url("${resolveMediaUrl(heroImage.url)}")`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }
+                  : {}),
+              }}
+            >
+              {heroImage && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 0,
+                    pointerEvents: "none",
+                    background: {
+                      xs: "linear-gradient(180deg, rgba(15,11,9,0.78) 0%, rgba(15,11,9,0.58) 45%, rgba(15,11,9,0.82) 100%)",
+                      md: "linear-gradient(100deg, rgba(15,11,9,0.88) 0%, rgba(15,11,9,0.62) 38%, rgba(15,11,9,0.16) 64%, rgba(15,11,9,0.42) 100%)",
+                    },
+                  }}
+                />
+              )}
+
+              {/* Text */}
+              <Box
+                sx={{
+                  position: "relative",
+                  zIndex: 1,
+                  flex: heroImage ? "1 1 100%" : { xs: "1 1 100%", md: "0 0 50%" },
+                  width: heroImage ? "100%" : { md: "50%" },
+                  maxWidth: heroImage ? { md: 640 } : "none",
+                  display: "flex",
+                  alignItems: "center",
+                  p: { xs: 3, sm: 4, md: 5 },
+                }}
+              >
                 <Stack spacing={3} alignItems={{ xs: "center", md: "flex-start" }} textAlign={{ xs: "center", md: "left" }}>
                   <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", justifyContent: { xs: "center", md: "flex-start" } }}>
                     <Chip label="3 cuotas sin interés" color="secondary" size="small" icon={<AutoAwesomeIcon sx={{ fontSize: "0.85rem !important" }} />} />
-                    <Chip label="Envío VIA CARGO" variant="outlined" size="small" />
+                    <Chip
+                      label="Envío VIA CARGO"
+                      variant="outlined"
+                      size="small"
+                      sx={heroImage ? { color: "#fffdf8", borderColor: "rgba(255,253,248,0.55)" } : undefined}
+                    />
                   </Stack>
 
                   <Box component="img" src={brandLogo} alt={`${BRAND.name} logo`} sx={{ width: { xs: 180, sm: 230 }, maxWidth: "100%", filter: "drop-shadow(0 2px 8px rgba(29,22,18,0.14))" }} />
@@ -424,6 +474,8 @@ export default function Home() {
                         lineHeight: 0.95,
                         letterSpacing: "-0.025em",
                         textTransform: "uppercase",
+                        color: heroImage ? "#fffdf8" : "text.primary",
+                        textShadow: heroImage ? "0 4px 20px rgba(0,0,0,0.45)" : "none",
                         "& em": {
                           fontStyle: "italic",
                           color: "#c8a45d",
@@ -439,7 +491,7 @@ export default function Home() {
                         fontWeight: 800,
                         letterSpacing: "0.28em",
                         textTransform: "uppercase",
-                        color: "text.secondary",
+                        color: heroImage ? "rgba(255,253,248,0.75)" : "text.secondary",
                       }}
                     >
                       {BRAND.segment}
@@ -447,8 +499,13 @@ export default function Home() {
                   </Box>
 
                   <Typography
-                    color="text.secondary"
-                    sx={{ maxWidth: 480, fontSize: { xs: "0.9rem", sm: "1rem" }, lineHeight: 1.65, fontWeight: 400 }}
+                    sx={{
+                      maxWidth: 480,
+                      fontSize: { xs: "0.9rem", sm: "1rem" },
+                      lineHeight: 1.65,
+                      fontWeight: 400,
+                      color: heroImage ? "rgba(255,253,248,0.85)" : "text.secondary",
+                    }}
                   >
                     Perfumes árabes, diseñador, nicho y decants. Fragancias originales con precio especial por transferencia.
                   </Typography>
@@ -477,7 +534,16 @@ export default function Home() {
                         variant="outlined"
                         size="large"
                         startIcon={<WhatsAppIcon />}
-                        sx={{ py: 1.4 }}
+                        sx={{
+                          py: 1.4,
+                          ...(heroImage
+                            ? {
+                                color: "#fffdf8",
+                                borderColor: "rgba(255,253,248,0.6)",
+                                "&:hover": { borderColor: "#fffdf8", bgcolor: "rgba(255,253,248,0.08)" },
+                              }
+                            : {}),
+                        }}
                       >
                         Consultar
                       </Button>
@@ -507,43 +573,9 @@ export default function Home() {
                 </Stack>
               </Box>
 
-              {/* Right: images */}
-              <Box sx={{ flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 2, md: 3 }, display: "flex", alignItems: "center" }}>
-                {heroImages.length ? (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      display: "grid",
-                      gridTemplateColumns: "repeat(2, 1fr)",
-                      gridTemplateRows: "repeat(2, 1fr)",
-                      gap: 1.5,
-                      aspectRatio: { md: "1 / 1.05" },
-                    }}
-                  >
-                    {heroImages.slice(0, 4).map((image, idx) => (
-                      <Box
-                        key={image.id || image.url}
-                        component="img"
-                        src={resolveMediaUrl(image.url)}
-                        alt={image.title || `Imagen ${idx + 1}`}
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          aspectRatio: idx === 0 ? "4 / 5" : "4 / 5",
-                          objectFit: "cover",
-                          borderRadius: 2,
-                          border: "1px solid rgba(67,48,34,0.08)",
-                          boxShadow: "0 8px 28px rgba(29,22,18,0.10)",
-                          transition: "transform 400ms ease, box-shadow 400ms ease",
-                          "&:hover": {
-                            transform: "scale(1.02)",
-                            boxShadow: "0 16px 40px rgba(29,22,18,0.18)",
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                ) : (
+              {/* Right: placeholder cuando todavía no hay imagen cargada */}
+              {!heroImage && (
+                <Box sx={{ position: "relative", zIndex: 1, flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 2, md: 3 }, display: "flex", alignItems: "center" }}>
                   <Box
                     sx={{
                       width: "100%",
@@ -581,8 +613,8 @@ export default function Home() {
                       Fragancias que<br />dejan huella.
                     </Typography>
                   </Box>
-                )}
-              </Box>
+                </Box>
+              )}
             </Box>
 
             {/* Bottom quote bar */}
