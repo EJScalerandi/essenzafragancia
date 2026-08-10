@@ -12,25 +12,19 @@ import Chip from "@mui/material/Chip";
 import Container from "@mui/material/Container";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
-import InputAdornment from "@mui/material/InputAdornment";
 import Paper from "@mui/material/Paper";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
-import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
-import SearchIcon from "@mui/icons-material/Search";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import { resolveMediaUrl } from "../api/http.js";
-import brandLogo from "../assets/essenza-logo.png";
-import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useProducts } from "../hooks/useProducts.js";
 import { useStore } from "../context/StoreContext.jsx";
@@ -334,7 +328,6 @@ export default function Home() {
   const { products } = useProducts();
   const { settings } = useStore();
 
-  const [q, setQ] = useState("");
   const [snackOpen, setSnackOpen] = useState(false);
   const [snackMsg, setSnackMsg] = useState("Agregado al carrito");
 
@@ -368,12 +361,6 @@ export default function Home() {
     return digits ? `https://wa.me/${digits}` : "";
   }, [settings.contactLinks?.whatsappNumber]);
 
-  const goSearch = () => {
-    const query = q.trim();
-    if (!query) return navigate("/products");
-    navigate(`/products?q=${encodeURIComponent(query)}`);
-  };
-
   const handleAdd = (product) => {
     if (!hasStock(product)) return;
     addItem(product);
@@ -386,263 +373,39 @@ export default function Home() {
       <Stack spacing={6} alignItems="center" sx={{ width: "100%" }}>
 
         {/* ── HERO ─────────────────────────────────────────────── */}
+        {/* Es solo la imagen que carga el dueño desde /admin/home-images: el diseño (texto, CTAs, etc.) ya viene resuelto en esa imagen. */}
         <SectionShell>
-          <Box
-            sx={{
-              position: "relative",
-              overflow: "hidden",
-              borderRadius: 3,
-              bgcolor: "#fffdf8",
-              border: "1px solid rgba(67,48,34,0.10)",
-              boxShadow: "0 24px 80px rgba(29,22,18,0.12)",
-              "&::before": {
-                content: '""',
-                position: "absolute",
-                inset: 0,
-                background:
-                  "linear-gradient(135deg, rgba(200,164,93,0.22) 0%, transparent 45%), radial-gradient(ellipse at 85% 5%, rgba(29,22,18,0.10) 0%, transparent 40%)",
-                pointerEvents: "none",
-                zIndex: 0,
-              },
-            }}
-          >
+          {heroImage ? (
             <Box
               sx={{
-                position: "relative",
-                display: "flex",
-                flexDirection: { xs: "column", md: heroImage ? "column" : "row" },
-                zIndex: 1,
-                minHeight: heroImage ? { xs: 460, md: 560 } : "auto",
-                ...(heroImage
-                  ? {
-                      bgcolor: "#1d1612",
-                      backgroundImage: `url("${resolveMediaUrl(heroImage.url)}")`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }
-                  : {}),
+                borderRadius: 3,
+                overflow: "hidden",
+                boxShadow: "0 24px 80px rgba(29,22,18,0.12)",
               }}
             >
-              {heroImage && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 0,
-                    pointerEvents: "none",
-                    background: {
-                      xs: "linear-gradient(180deg, rgba(15,11,9,0.78) 0%, rgba(15,11,9,0.58) 45%, rgba(15,11,9,0.82) 100%)",
-                      md: "linear-gradient(100deg, rgba(15,11,9,0.88) 0%, rgba(15,11,9,0.62) 38%, rgba(15,11,9,0.16) 64%, rgba(15,11,9,0.42) 100%)",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Text */}
               <Box
-                sx={{
-                  position: "relative",
-                  zIndex: 1,
-                  flex: heroImage ? "1 1 100%" : { xs: "1 1 100%", md: "0 0 50%" },
-                  width: heroImage ? "100%" : { md: "50%" },
-                  maxWidth: heroImage ? { md: 640 } : "none",
-                  display: "flex",
-                  alignItems: "center",
-                  p: { xs: 3, sm: 4, md: 5 },
-                }}
-              >
-                <Stack spacing={3} alignItems={{ xs: "center", md: "flex-start" }} textAlign={{ xs: "center", md: "left" }}>
-                  <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", justifyContent: { xs: "center", md: "flex-start" } }}>
-                    <Chip label="3 cuotas sin interés" color="secondary" size="small" icon={<AutoAwesomeIcon sx={{ fontSize: "0.85rem !important" }} />} />
-                    <Chip
-                      label="Envío VIA CARGO"
-                      variant="outlined"
-                      size="small"
-                      sx={heroImage ? { color: "#fffdf8", borderColor: "rgba(255,253,248,0.55)" } : undefined}
-                    />
-                  </Stack>
-
-                  <Box component="img" src={brandLogo} alt={`${BRAND.name} logo`} sx={{ height: { xs: 130, sm: 165 }, width: "auto", maxWidth: "100%", filter: "drop-shadow(0 2px 8px rgba(29,22,18,0.14))" }} />
-
-                  <Box>
-                    <Typography
-                      component="h1"
-                      sx={{
-                        fontFamily: SERIF,
-                        fontWeight: 900,
-                        fontSize: { xs: "2.6rem", sm: "3.4rem", md: "4.2rem" },
-                        lineHeight: 0.95,
-                        letterSpacing: "-0.025em",
-                        textTransform: "uppercase",
-                        color: heroImage ? "#fffdf8" : "text.primary",
-                        textShadow: heroImage ? "0 4px 20px rgba(0,0,0,0.45)" : "none",
-                        "& em": {
-                          fontStyle: "italic",
-                          color: "#c8a45d",
-                        },
-                      }}
-                    >
-                      {settings.storeName || BRAND.name}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        mt: 1.5,
-                        fontSize: { xs: "0.68rem", sm: "0.75rem" },
-                        fontWeight: 800,
-                        letterSpacing: "0.28em",
-                        textTransform: "uppercase",
-                        color: heroImage ? "rgba(255,253,248,0.75)" : "text.secondary",
-                      }}
-                    >
-                      {BRAND.segment}
-                    </Typography>
-                  </Box>
-
-                  <Typography
-                    sx={{
-                      maxWidth: 480,
-                      fontSize: { xs: "0.9rem", sm: "1rem" },
-                      lineHeight: 1.65,
-                      fontWeight: 400,
-                      color: heroImage ? "rgba(255,253,248,0.85)" : "text.secondary",
-                    }}
-                  >
-                    Perfumes árabes, diseñador, nicho y decants. Fragancias originales con precio especial por transferencia.
-                  </Typography>
-
-                  <Stack
-                    direction={{ xs: "column", sm: "row" }}
-                    spacing={1.25}
-                    sx={{ justifyContent: { xs: "center", md: "flex-start" }, alignItems: { xs: "stretch", sm: "center" }, width: "100%" }}
-                  >
-                    <Button
-                      component={RouterLink}
-                      to="/products"
-                      variant="contained"
-                      size="large"
-                      startIcon={<ShoppingBagOutlinedIcon />}
-                      sx={{ px: 3, py: 1.4 }}
-                    >
-                      Ver perfumes
-                    </Button>
-                    {whatsappHref && (
-                      <Button
-                        component="a"
-                        href={whatsappHref}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        variant="outlined"
-                        size="large"
-                        startIcon={<WhatsAppIcon />}
-                        sx={{
-                          py: 1.4,
-                          ...(heroImage
-                            ? {
-                                color: "#fffdf8",
-                                borderColor: "rgba(255,253,248,0.6)",
-                                "&:hover": { borderColor: "#fffdf8", bgcolor: "rgba(255,253,248,0.08)" },
-                              }
-                            : {}),
-                        }}
-                      >
-                        Consultar
-                      </Button>
-                    )}
-                  </Stack>
-
-                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ width: "100%", maxWidth: 520 }}>
-                    <TextField
-                      value={q}
-                      onChange={(e) => setQ(e.target.value)}
-                      placeholder="Buscar fragancia, marca, decant..."
-                      fullWidth
-                      size="small"
-                      onKeyDown={(e) => { if (e.key === "Enter") goSearch(); }}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <SearchIcon sx={{ fontSize: "1.1rem", color: "text.secondary" }} />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    <Button variant="contained" onClick={goSearch} size="small" sx={{ px: 2.5, flexShrink: 0 }}>
-                      Buscar
-                    </Button>
-                  </Stack>
-                </Stack>
-              </Box>
-
-              {/* Right: placeholder cuando todavía no hay imagen cargada */}
-              {!heroImage && (
-                <Box sx={{ position: "relative", zIndex: 1, flex: { xs: "1 1 100%", md: "0 0 50%" }, width: { md: "50%" }, p: { xs: 2, md: 3 }, display: "flex", alignItems: "center" }}>
-                  <Box
-                    sx={{
-                      width: "100%",
-                      py: { xs: 3, md: 8 },
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 2,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 120,
-                        height: 120,
-                        borderRadius: "50%",
-                        bgcolor: "rgba(200,164,93,0.15)",
-                        border: "2px solid rgba(200,164,93,0.30)",
-                        display: "grid",
-                        placeItems: "center",
-                      }}
-                    >
-                      <AutoAwesomeIcon sx={{ fontSize: 44, color: "#c8a45d" }} />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontFamily: SERIF,
-                        fontStyle: "italic",
-                        fontSize: { xs: "1.5rem", sm: "1.9rem" },
-                        textAlign: "center",
-                        lineHeight: 1.2,
-                        color: "text.secondary",
-                      }}
-                    >
-                      Fragancias que<br />dejan huella.
-                    </Typography>
-                  </Box>
-                </Box>
-              )}
+                component="img"
+                src={resolveMediaUrl(heroImage.url)}
+                alt={heroImage.title || settings.storeName || "Essenza Fragancia"}
+                sx={{ display: "block", width: "100%", height: "auto" }}
+              />
             </Box>
-
-            {/* Bottom quote bar */}
+          ) : (
             <Box
               sx={{
-                borderTop: "1px solid rgba(67,48,34,0.08)",
-                px: { xs: 3, md: 5 },
-                py: 2,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                bgcolor: "rgba(200,164,93,0.06)",
+                borderRadius: 3,
+                border: "1px dashed rgba(67,48,34,0.25)",
+                bgcolor: "#fffdf8",
+                py: { xs: 6, md: 9 },
+                px: 3,
+                textAlign: "center",
               }}
             >
-              <Typography
-                sx={{
-                  fontFamily: SERIF,
-                  fontStyle: "italic",
-                  fontSize: { xs: "1rem", sm: "1.15rem" },
-                  color: "text.secondary",
-                  textAlign: "center",
-                }}
-              >
-                Fragancias que dejan huella.
+              <Typography sx={{ fontFamily: SERIF, fontStyle: "italic", fontSize: { xs: "1.3rem", sm: "1.6rem" }, color: "text.secondary" }}>
+                Subí la imagen de portada desde /admin/home-images.
               </Typography>
             </Box>
-          </Box>
+          )}
         </SectionShell>
 
         {/* ── TRUST STRIP ──────────────────────────────────────── */}
