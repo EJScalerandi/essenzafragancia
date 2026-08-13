@@ -16,7 +16,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { apiFetch, apiFetchBuyer } from "../api/http.js";
 import { useStore } from "../context/StoreContext.jsx";
-import { BANK_TRANSFER_MESSAGE } from "../branding/brand.js";
+import { BANK_TRANSFER_MESSAGE, STORAGE_KEYS } from "../branding/brand.js";
 
 function estadoLabel(status) {
   const map = {
@@ -78,17 +78,14 @@ export default function Order() {
   useEffect(() => {
     const sp = new URLSearchParams(location.search);
     const tFromUrl = sp.get("token") || "";
-    const tFromLocal =
-      localStorage.getItem(`karolin_active_order_token_${id}`) ||
-      localStorage.getItem(`dflex_order_token_${id}`) ||
-      "";
+    const tFromLocal = localStorage.getItem(`${STORAGE_KEYS.ORDER_TOKEN_PREFIX}${id}`) || "";
 
     const t = tFromUrl || tFromLocal;
     setToken(t);
 
-    if (tFromUrl) localStorage.setItem(`karolin_active_order_token_${id}`, tFromUrl);
+    if (tFromUrl) localStorage.setItem(`${STORAGE_KEYS.ORDER_TOKEN_PREFIX}${id}`, tFromUrl);
 
-    const buyerToken = localStorage.getItem("karolin_active_buyer_token") || localStorage.getItem("dflex_buyer_token");
+    const buyerToken = localStorage.getItem(STORAGE_KEYS.BUYER_TOKEN);
     setHasBuyerSession(!!buyerToken);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
@@ -111,8 +108,11 @@ export default function Order() {
         setOrder(o);
         setMessages([]);
       } else if (fetchMode === "buyer-session") {
-        const o = await apiFetchBuyer(`/api/orders/${encodeURIComponent(id)}`);
-        const m = await apiFetchBuyer(`/api/orders/${encodeURIComponent(id)}/messages`);
+        // Mandamos el token del pedido (si lo tenemos) junto con la sesión: sirve
+        // para que el backend vincule la cuenta a pedidos de invitado sin email
+        // (el email ya no es obligatorio en el checkout).
+        const o = await apiFetchBuyer(`/api/orders/${encodeURIComponent(id)}`, { headers });
+        const m = await apiFetchBuyer(`/api/orders/${encodeURIComponent(id)}/messages`, { headers });
         setOrder(o);
         setMessages(Array.isArray(m?.items) ? m.items : []);
       } else {
@@ -143,6 +143,7 @@ export default function Order() {
       if (fetchMode === "buyer-session") {
         msg = await apiFetchBuyer(`/api/orders/${encodeURIComponent(id)}/messages`, {
           method: "POST",
+          headers,
           body: JSON.stringify({ text: trimmed }),
         });
       } else {

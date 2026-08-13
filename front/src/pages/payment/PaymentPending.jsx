@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import { useCart } from "../../context/CartContext.jsx";
 import { useCustomerAuth } from "../../context/CustomerAuthContext.jsx";
 import { apiFetchBuyer } from "../../api/http.js";
+import { STORAGE_KEYS } from "../../branding/brand.js";
 
 function paramsToObj(sp) {
   const o = {};
@@ -56,10 +57,10 @@ export default function PaymentPending() {
         if (cancelled) return;
 
         if (res?.order?.id) {
-          localStorage.setItem("karolin_active_last_order_id", res.order.id);
+          localStorage.setItem(STORAGE_KEYS.LAST_ORDER, res.order.id);
 
           if (res.buyerToken) {
-            localStorage.setItem(`karolin_active_order_token_${res.order.id}`, res.buyerToken);
+            localStorage.setItem(`${STORAGE_KEYS.ORDER_TOKEN_PREFIX}${res.order.id}`, res.buyerToken);
           }
 
           if (res.accountToken && res.accountUser) {

@@ -154,41 +154,54 @@ async function create(req, res, next) {
   }
 }
 
+function findAccessToken(order, token) {
+  if (!token) return null;
+  const nowIso = new Date().toISOString();
+  pruneAccessTokens(order, nowIso);
+  const hash = sha256Hex(token);
+  const tokens = Array.isArray(order.accessTokens) ? order.accessTokens : [];
+  return tokens.find((t) => t.hash === hash) || null;
+}
+
+function isAccessTokenExpired(match) {
+  if (match.expiresAt === null || match.expiresAt === undefined) return false;
+  const exp = new Date(match.expiresAt).getTime();
+  return !Number.isFinite(exp) || exp <= Date.now();
+}
+
 async function authorizeOrderAccess(req, order) {
   if (req.user && req.user.role === 'admin') return { ok: true, mode: 'admin' };
+
+  const token = getOrderToken(req);
+  const tokenMatch = findAccessToken(order, token);
+  const tokenIsValid = !!tokenMatch && !isAccessTokenExpired(tokenMatch);
 
   if (req.user && req.user.role === 'buyer') {
     if (order.userId && req.user.id === order.userId) {
       return { ok: true, mode: 'buyer-auth' };
     }
 
-    const orderEmail = String(order.customer?.email || '').toLowerCase();
-    const userEmail = String(req.user.email || '').toLowerCase();
+    if (!order.userId) {
+      const orderEmail = String(order.customer?.email || '').toLowerCase();
+      const userEmail = String(req.user.email || '').toLowerCase();
+      const emailMatches = orderEmail && userEmail && orderEmail === userEmail;
 
-    if (!order.userId && orderEmail && userEmail && orderEmail === userEmail) {
-      order.userId = req.user.id;
-      order.updatedAt = new Date().toISOString();
-      await upsertOrder(order);
-      return { ok: true, mode: 'buyer-auth' };
+      // El email coincide, o el comprador tiene el link privado del pedido
+      // (prueba de titularidad valida aunque el pedido no haya dejado email,
+      // que ahora es opcional en el checkout de invitado).
+      if (emailMatches || tokenIsValid) {
+        order.userId = req.user.id;
+        order.updatedAt = new Date().toISOString();
+        await upsertOrder(order);
+        return { ok: true, mode: 'buyer-auth' };
+      }
     }
   }
 
-  const token = getOrderToken(req);
   if (!token) return { ok: false, status: 401, message: 'Token de pedido requerido' };
-
-  const nowIso = new Date().toISOString();
-  pruneAccessTokens(order, nowIso);
-
-  const hash = sha256Hex(token);
-  const tokens = Array.isArray(order.accessTokens) ? order.accessTokens : [];
-  const match = tokens.find((t) => t.hash === hash);
-  if (!match) return { ok: false, status: 403, message: 'Token de pedido inválido' };
-
-  if (match.expiresAt !== null && match.expiresAt !== undefined) {
-    const exp = new Date(match.expiresAt).getTime();
-    if (!Number.isFinite(exp) || exp <= Date.now()) {
-      return { ok: false, status: 410, message: 'El enlace privado expiró. Solicitá uno nuevo.' };
-    }
+  if (!tokenMatch) return { ok: false, status: 403, message: 'Token de pedido inválido' };
+  if (isAccessTokenExpired(tokenMatch)) {
+    return { ok: false, status: 410, message: 'El enlace privado expiró. Solicitá uno nuevo.' };
   }
 
   await upsertOrder(order);

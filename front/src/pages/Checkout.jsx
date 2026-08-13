@@ -29,7 +29,7 @@ import { useCart } from "../context/CartContext.jsx";
 import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
 import { apiFetchBuyer } from "../api/http.js";
-import { BANK_TRANSFER_MESSAGE } from "../branding/brand.js";
+import { BANK_TRANSFER_MESSAGE, STORAGE_KEYS } from "../branding/brand.js";
 
 import mercadopagoLogo from "../assets/payment-methods/mercadopago-logo.png";
 import visaCreditLogo from "../assets/payment-methods/visa-credit.png";
@@ -310,9 +310,9 @@ export default function Checkout() {
   const saveCreatedOrder = (data) => {
     const order = data?.order || data;
     if (order?.id) {
-      localStorage.setItem("karolin_active_last_order_id", order.id);
+      localStorage.setItem(STORAGE_KEYS.LAST_ORDER, order.id);
       if (data?.buyerToken) {
-        localStorage.setItem(`karolin_active_order_token_${order.id}`, data.buyerToken);
+        localStorage.setItem(`${STORAGE_KEYS.ORDER_TOKEN_PREFIX}${order.id}`, data.buyerToken);
       }
     }
 
