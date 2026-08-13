@@ -108,10 +108,10 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <Box sx={{ py: 8, textAlign: "center" }}>
-        <Typography variant="h4" sx={{ fontFamily: SERIF, fontStyle: "italic", color: "text.secondary", mb: 1 }}>
+        <Typography variant="h4" sx={{ fontFamily: SERIF, fontStyle: "italic", color: "rgba(255,253,248,0.85)", mb: 1 }}>
           Producto no encontrado
         </Typography>
-        <Typography color="text.secondary" sx={{ mb: 3 }}>
+        <Typography sx={{ color: "rgba(255,253,248,0.7)", mb: 3 }}>
           No existe un producto con id: <b>{id}</b>
         </Typography>
         <Button component={RouterLink} to="/products" variant="contained" startIcon={<ArrowBackIcon />}>
@@ -150,14 +150,14 @@ export default function ProductDetail() {
   return (
     <Stack spacing={3} sx={{ maxWidth: 1200, mx: "auto" }}>
       {/* Breadcrumb */}
-      <Breadcrumbs sx={{ fontSize: "0.82rem" }}>
-        <Link component={RouterLink} to="/" underline="hover" color="inherit" sx={{ fontWeight: 600 }}>
+      <Breadcrumbs sx={{ fontSize: "0.82rem", "& .MuiBreadcrumbs-separator": { color: "rgba(255,253,248,0.5)" } }}>
+        <Link component={RouterLink} to="/" underline="hover" sx={{ fontWeight: 600, color: "rgba(255,253,248,0.78)" }}>
           Inicio
         </Link>
-        <Link component={RouterLink} to="/products" underline="hover" color="inherit" sx={{ fontWeight: 600 }}>
+        <Link component={RouterLink} to="/products" underline="hover" sx={{ fontWeight: 600, color: "rgba(255,253,248,0.78)" }}>
           Perfumes
         </Link>
-        <Typography color="text.primary" sx={{ fontWeight: 700, fontSize: "0.82rem" }}>
+        <Typography sx={{ fontWeight: 700, fontSize: "0.82rem", color: "#fffdf8" }}>
           {product.name}
         </Typography>
       </Breadcrumbs>
@@ -209,7 +209,7 @@ export default function ProductDetail() {
 
             {/* Thumbnail hint */}
             {product.image && (
-              <Typography variant="caption" color="text.disabled" sx={{ display: "block", textAlign: "center", mt: 1 }}>
+              <Typography variant="caption" sx={{ display: "block", textAlign: "center", mt: 1, color: "rgba(255,253,248,0.55)" }}>
                 Toca para {zoomed ? "alejar" : "ampliar"}
               </Typography>
             )}
@@ -218,6 +218,7 @@ export default function ProductDetail() {
 
         {/* ── INFO COLUMN ── */}
         <Grid size={{ xs: 12, md: 6 }}>
+          <Paper sx={{ p: { xs: 2.5, sm: 3.5 }, bgcolor: "#fffdf8" }}>
           <Stack spacing={3}>
             {/* Category + Tags */}
             <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -476,6 +477,7 @@ export default function ProductDetail() {
               Seguir comprando
             </Button>
           </Stack>
+          </Paper>
         </Grid>
       </Grid>
 

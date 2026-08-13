@@ -10,7 +10,7 @@ export const theme = createTheme({
     mode: "light",
     primary: { main: "#1d1612", contrastText: "#ffffff" },
     secondary: { main: "#c8a45d", contrastText: "#1d1612" },
-    background: { default: "#fbf6ee", paper: "#fffdf8" },
+    background: { default: "#0c0906", paper: "#fffdf8" },
     text: { primary: "#1d1612", secondary: "#6f6254" },
     divider: "rgba(67, 48, 34, 0.13)",
     error: { main: "#8f332d" },
@@ -72,7 +72,7 @@ export const theme = createTheme({
           background: "transparent",
         },
         html: {
-          background: "#fbf6ee",
+          background: "#0c0906",
         },
       },
     },

@@ -72,12 +72,14 @@ function SectionHeader({ title, subtitle, actionTo, italic }) {
             letterSpacing: "-0.01em",
             fontStyle: italic ? "italic" : "normal",
             lineHeight: 1.1,
+            color: "#fffdf8",
+            textShadow: "0 2px 10px rgba(0,0,0,0.45)",
           }}
         >
           {title}
         </Typography>
         {subtitle && (
-          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+          <Typography variant="body2" sx={{ fontWeight: 500, color: "rgba(255,253,248,0.78)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>
             {subtitle}
           </Typography>
         )}
@@ -88,7 +90,13 @@ function SectionHeader({ title, subtitle, actionTo, italic }) {
           to={actionTo}
           variant="outlined"
           size="small"
-          sx={{ flexShrink: 0, borderRadius: 2 }}
+          sx={{
+            flexShrink: 0,
+            borderRadius: 2,
+            color: "#fffdf8",
+            borderColor: "rgba(255,253,248,0.5)",
+            "&:hover": { borderColor: "#fffdf8", bgcolor: "rgba(255,253,248,0.08)" },
+          }}
         >
           Ver todos
         </Button>
@@ -354,6 +362,7 @@ export default function Home() {
   const offers = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Oferta")).slice(0, 6), [products]);
   const featured = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Destacado")).slice(0, 6), [products]);
   const newest = useMemo(() => products.filter((p) => (p.tags ?? []).includes("Nuevo")).slice(0, 6), [products]);
+  const accessories = useMemo(() => products.filter((p) => p.category === "Accesorios").slice(0, 6), [products]);
 
   const whatsappHref = useMemo(() => {
     const raw = settings.contactLinks?.whatsappNumber || "543572585775";
@@ -522,20 +531,21 @@ export default function Home() {
           <SectionShell>
             <Stack spacing={1.5}>
               <Stack direction="row" alignItems="center" spacing={1.5}>
-                <Box sx={{ height: 2, flex: 1, bgcolor: "rgba(67,48,34,0.12)", borderRadius: 1 }} />
+                <Box sx={{ height: 2, flex: 1, bgcolor: "rgba(255,253,248,0.22)", borderRadius: 1 }} />
                 <Typography
                   sx={{
                     fontWeight: 800,
                     fontSize: "0.72rem",
                     letterSpacing: "0.2em",
                     textTransform: "uppercase",
-                    color: "text.secondary",
+                    color: "rgba(255,253,248,0.85)",
+                    textShadow: "0 1px 6px rgba(0,0,0,0.4)",
                     px: 1,
                   }}
                 >
                   Explorar por categoría
                 </Typography>
-                <Box sx={{ height: 2, flex: 1, bgcolor: "rgba(67,48,34,0.12)", borderRadius: 1 }} />
+                <Box sx={{ height: 2, flex: 1, bgcolor: "rgba(255,253,248,0.22)", borderRadius: 1 }} />
               </Stack>
 
               <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", justifyContent: "center" }}>
@@ -653,6 +663,15 @@ export default function Home() {
           subtitle="Últimas incorporaciones y combos para probar más fragancias."
           products={newest}
           actionTo="/products?tag=Nuevo"
+          onAdd={handleAdd}
+        />
+
+        {/* ── ACCESORIOS ───────────────────────────────────────── */}
+        <ProductSection
+          title="Accesorios"
+          subtitle="Sumá un plus a tu fragancia."
+          products={accessories}
+          actionTo="/products?cat=Accesorios"
           onAdd={handleAdd}
         />
 

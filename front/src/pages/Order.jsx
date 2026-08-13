@@ -193,8 +193,8 @@ export default function Order() {
     <Stack spacing={2}>
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={1}>
         <Stack>
-          <Typography variant="h4" sx={{ fontWeight: 900 }}>Pedido {id}</Typography>
-          <Typography variant="body2" color="text.secondary">Creado: {formatDate(order?.createdAt)}</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 900, color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>Pedido {id}</Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,253,248,0.78)" }}>Creado: {formatDate(order?.createdAt)}</Typography>
         </Stack>
       </Stack>
 
@@ -269,7 +269,7 @@ export default function Order() {
               <Typography color="text.secondary">Sin mensajes.</Typography>
             ) : (
               messages.map((m) => (
-                <Box key={m.id} sx={{ p: 1, borderRadius: 1, bgcolor: m.sender === "admin" ? "action.selected" : "background.default" }}>
+                <Box key={m.id} sx={{ p: 1, borderRadius: 1, bgcolor: m.sender === "admin" ? "action.selected" : "rgba(200,164,93,0.10)" }}>
                   <Typography variant="body2" sx={{ fontWeight: 900 }}>
                     {m.sender === "admin" ? "Tienda" : "Vos"} <span style={{ fontWeight: 400, color: "#666" }}>· {formatDate(m.createdAt)}</span>
                   </Typography>

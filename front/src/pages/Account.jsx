@@ -184,7 +184,7 @@ export default function Account() {
   if (!user) {
     return (
       <Stack spacing={2}>
-        <Typography variant="h4" sx={{ fontWeight: 900 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
           Mi cuenta
         </Typography>
 
@@ -265,7 +265,7 @@ export default function Account() {
   return (
     <Stack spacing={2}>
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={1}>
-        <Typography variant="h4" sx={{ fontWeight: 900 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
           Mi cuenta
         </Typography>
         <Button variant="outlined" onClick={logout}>

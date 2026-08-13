@@ -100,7 +100,7 @@ export default function PaymentSuccess() {
   if (syncError) {
     return (
       <Stack spacing={2}>
-        <Typography variant="h4" sx={{ fontWeight: 900 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
           Estamos preparando tu pedido
         </Typography>
 

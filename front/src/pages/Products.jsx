@@ -338,13 +338,13 @@ export default function Products() {
     <Box sx={{ maxWidth: 1400, mx: "auto" }}>
       {/* Header */}
       <Stack spacing={0.5} sx={{ mb: 3 }}>
-        <Typography variant="h3" sx={{ fontFamily: SERIF, fontWeight: 700, letterSpacing: "-0.02em" }}>
+        <Typography variant="h3" sx={{ fontFamily: SERIF, fontWeight: 700, letterSpacing: "-0.02em", color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
           Perfumes
         </Typography>
-        <Typography color="text.secondary" sx={{ fontSize: "0.9rem" }}>
+        <Typography sx={{ fontSize: "0.9rem", color: "rgba(255,253,248,0.78)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>
           Fragancias diseñador, árabes, nicho y decants.
         </Typography>
-        <Typography variant="caption" color="text.disabled">
+        <Typography variant="caption" sx={{ color: "rgba(255,253,248,0.55)" }}>
           Los precios no incluyen el costo de envío.
         </Typography>
       </Stack>
@@ -441,7 +441,7 @@ export default function Products() {
 
       {/* Result count */}
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
+        <Typography variant="body2" sx={{ fontWeight: 600, color: "rgba(255,253,248,0.78)", textShadow: "0 1px 6px rgba(0,0,0,0.4)" }}>
           {filtered.length === 0 ? "Sin resultados" : `${filtered.length} producto${filtered.length !== 1 ? "s" : ""}`}
         </Typography>
         {(query || category !== "Todas" || tag !== "Todos") && (
@@ -449,7 +449,7 @@ export default function Products() {
             size="small"
             variant="text"
             onClick={() => { setQuery(""); setCategory("Todas"); setTag("Todos"); setPage(1); }}
-            sx={{ fontSize: "0.78rem" }}
+            sx={{ fontSize: "0.78rem", color: "#fffdf8" }}
           >
             Limpiar filtros
           </Button>
@@ -473,7 +473,7 @@ export default function Products() {
             p: 5,
             textAlign: "center",
             border: "1px dashed rgba(67,48,34,0.18)",
-            bgcolor: "transparent",
+            bgcolor: "rgba(255,253,248,0.92)",
           }}
         >
           <Typography variant="h6" sx={{ fontFamily: SERIF, fontStyle: "italic", color: "text.secondary", mb: 1 }}>
@@ -502,6 +502,10 @@ export default function Products() {
             onChange={(_, v) => setPage(v)}
             color="primary"
             shape="rounded"
+            sx={{
+              "& .MuiPaginationItem-root": { color: "#fffdf8", borderColor: "rgba(255,253,248,0.3)" },
+              "& .MuiPaginationItem-root.Mui-selected": { bgcolor: "#1d1612", color: "#c8a45d" },
+            }}
           />
         </Stack>
       )}
