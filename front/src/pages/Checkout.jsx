@@ -263,19 +263,20 @@ export default function Checkout() {
     if (paymentMethod === "mercadopago" && mp.enabled === false) return false;
     if (paymentMethod === "chat_whatsapp" && chatPayment.enabled === false) return false;
 
-    const baseOk =
-      form.fullName.trim() &&
-      form.email.trim() &&
-      form.phone.trim() &&
-      form.address.trim() &&
-      form.city.trim() &&
-      form.province.trim() &&
-      form.zip.trim();
+    if (!form.fullName.trim()) return false;
 
-    if (!baseOk) return false;
-
+    // Email/teléfono/dirección solo son obligatorios si el comprador
+    // elige crear una cuenta (ver bloque "Cuenta" del formulario).
     if (!buyerUser && createAccount) {
-      return password.trim().length >= 6;
+      const accountFieldsOk =
+        form.email.trim() &&
+        form.phone.trim() &&
+        form.address.trim() &&
+        form.city.trim() &&
+        form.province.trim() &&
+        form.zip.trim();
+
+      return Boolean(accountFieldsOk) && password.trim().length >= 6;
     }
 
     return true;
@@ -464,7 +465,7 @@ export default function Checkout() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h4" sx={{ fontWeight: 900 }}>
+      <Typography variant="h4" sx={{ fontWeight: 900, color: "#fffdf8", textShadow: "0 2px 10px rgba(0,0,0,0.45)" }}>
         Finalizar compra
       </Typography>
 
@@ -482,38 +483,6 @@ export default function Checkout() {
                     <Grid size={{ xs: 12 }}>
                       <TextField label="Nombre y apellido" value={form.fullName} onChange={onChange("fullName")} fullWidth required />
                     </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField
-                        label="Email"
-                        value={form.email}
-                        onChange={onChange("email")}
-                        type="email"
-                        fullWidth
-                        required
-                        helperText="Te enviaremos por email el enlace privado para comunicarte."
-                      />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 6 }}>
-                      <TextField label="Teléfono" value={form.phone} onChange={onChange("phone")} fullWidth required />
-                    </Grid>
-
-                    <Grid size={{ xs: 12 }}>
-                      <TextField label="Dirección" value={form.address} onChange={onChange("address")} fullWidth required />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <TextField label="Ciudad" value={form.city} onChange={onChange("city")} fullWidth required />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <TextField label="Provincia" value={form.province} onChange={onChange("province")} fullWidth required />
-                    </Grid>
-
-                    <Grid size={{ xs: 12, sm: 4 }}>
-                      <TextField label="Código postal" value={form.zip} onChange={onChange("zip")} fullWidth required />
-                    </Grid>
                   </Grid>
                 </Box>
 
@@ -530,14 +499,50 @@ export default function Checkout() {
                     />
 
                     {createAccount ? (
-                      <TextField
-                        label="Contraseña"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        fullWidth
-                        helperText="Mínimo 6 caracteres"
-                      />
+                      <Stack spacing={2} sx={{ mt: 1 }}>
+                        <Grid container spacing={2}>
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField
+                              label="Email"
+                              value={form.email}
+                              onChange={onChange("email")}
+                              type="email"
+                              fullWidth
+                              required
+                              helperText="Te enviaremos por email el enlace privado para comunicarte."
+                            />
+                          </Grid>
+
+                          <Grid size={{ xs: 12, sm: 6 }}>
+                            <TextField label="Teléfono" value={form.phone} onChange={onChange("phone")} fullWidth required />
+                          </Grid>
+
+                          <Grid size={{ xs: 12 }}>
+                            <TextField label="Dirección" value={form.address} onChange={onChange("address")} fullWidth required />
+                          </Grid>
+
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField label="Ciudad" value={form.city} onChange={onChange("city")} fullWidth required />
+                          </Grid>
+
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField label="Provincia" value={form.province} onChange={onChange("province")} fullWidth required />
+                          </Grid>
+
+                          <Grid size={{ xs: 12, sm: 4 }}>
+                            <TextField label="Código postal" value={form.zip} onChange={onChange("zip")} fullWidth required />
+                          </Grid>
+                        </Grid>
+
+                        <TextField
+                          label="Contraseña"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          fullWidth
+                          helperText="Mínimo 6 caracteres"
+                        />
+                      </Stack>
                     ) : null}
                   </Paper>
                 ) : (

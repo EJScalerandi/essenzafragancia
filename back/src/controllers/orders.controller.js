@@ -24,14 +24,17 @@ const itemSchema = z.object({
   variant: z.object({ color: z.string(), size: z.string() }).nullable().optional(),
 });
 
+// Solo el nombre es obligatorio en el checkout. El resto de los datos del
+// comprador (email, teléfono, dirección) solo se piden/exigen si tilda
+// "crear cuenta" (ver el .superRefine de createSchema más abajo).
 const customerSchema = z.object({
   fullName: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(5),
-  address: z.string().min(1),
-  city: z.string().min(1),
-  province: z.string().min(1),
-  zip: z.string().min(1),
+  email: z.union([z.literal(''), z.string().email()]).optional().default(''),
+  phone: z.string().optional().default(''),
+  address: z.string().optional().default(''),
+  city: z.string().optional().default(''),
+  province: z.string().optional().default(''),
+  zip: z.string().optional().default(''),
 });
 
 const paymentProofSchema = z.object({
@@ -49,6 +52,14 @@ const createSchema = z.object({
   paymentProof: paymentProofSchema,
   createAccount: z.boolean().optional().default(false),
   password: z.string().min(6).optional(),
+}).superRefine((data, ctx) => {
+  if (!data.createAccount) return;
+  const required = ['email', 'phone', 'address', 'city', 'province', 'zip'];
+  for (const field of required) {
+    if (!data.customer[field]) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customer', field], message: 'Requerido para crear cuenta' });
+    }
+  }
 });
 
 const messageSchema = z.object({
@@ -306,21 +317,23 @@ async function postMessage(req, res, next) {
     await upsertOrder(order);
 
     if (sender === 'admin') {
-      try {
-        const { token, expiresAt } = issueNewAccessToken(order, now);
-        order.buyerTokenExpiresAt = expiresAt;
-        await upsertOrder(order);
+      if (order.customer.email) {
+        try {
+          const { token, expiresAt } = issueNewAccessToken(order, now);
+          order.buyerTokenExpiresAt = expiresAt;
+          await upsertOrder(order);
 
-        await sendOrderMessageEmail({
-          to: order.customer.email,
-          customerName: order.customer.fullName,
-          orderId: order.id,
-          token,
-          expiresAt,
-          messagePreview: msg.text,
-        });
-      } catch (e) {
-        console.error('[EMAIL] Failed to send buyer notification:', e.message || e);
+          await sendOrderMessageEmail({
+            to: order.customer.email,
+            customerName: order.customer.fullName,
+            orderId: order.id,
+            token,
+            expiresAt,
+            messagePreview: msg.text,
+          });
+        } catch (e) {
+          console.error('[EMAIL] Failed to send buyer notification:', e.message || e);
+        }
       }
     } else {
       const adminEmails = parseAdminEmails();

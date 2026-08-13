@@ -319,16 +319,18 @@ async function createOrderFromCheckout({ body, paymentMethod, reqUser = null, pa
 
   await upsertOrder(order);
 
-  try {
-    await sendOrderCreatedEmail({
-      to: order.customer.email,
-      customerName: order.customer.fullName,
-      orderId: order.id,
-      token: buyerToken,
-      expiresAt: buyerTokenExpiresAt,
-    });
-  } catch (e) {
-    console.error('[EMAIL] Failed to send order email:', e.message || e);
+  if (order.customer.email) {
+    try {
+      await sendOrderCreatedEmail({
+        to: order.customer.email,
+        customerName: order.customer.fullName,
+        orderId: order.id,
+        token: buyerToken,
+        expiresAt: buyerTokenExpiresAt,
+      });
+    } catch (e) {
+      console.error('[EMAIL] Failed to send order email:', e.message || e);
+    }
   }
 
   if (order.note) {
