@@ -18,6 +18,7 @@ router.delete('/products/:id', adminProducts.remove);
 
 // Orders
 router.get('/orders', adminOrders.list);
+router.post('/orders', adminOrders.create);
 router.get('/inbox', adminOrders.inbox);
 router.get('/orders/:id', adminOrders.getById);
 router.patch('/orders/:id/fulfillment', adminOrders.patchFulfillment);

@@ -4,7 +4,8 @@ const crypto = require('crypto');
 
 const { sendOrderMessageEmail, sendBankTransferVerifiedEmail } = require('../services/email.service');
 
-const { listOrders, getOrderById, patchOrder } = require('../services/orders.service');
+const { listOrders, getOrderById, patchOrder, upsertOrder } = require('../services/orders.service');
+const { nextOrderId } = require('../services/orderNumber.service');
 
 const GUEST_TTL_DAYS = Number(process.env.ORDER_TOKEN_TTL_GUEST_DAYS || 90);
 const ACCOUNT_TTL_DAYS = Number(process.env.ORDER_TOKEN_TTL_ACCOUNT_DAYS || 0);
@@ -75,6 +76,40 @@ const patchFulfillmentSchema = z.object({
   fulfillmentStatus: z.enum(['created', 'processing', 'shipped', 'delivered', 'cancelled']),
 });
 
+const manualItemSchema = z.object({
+  productId: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  price: z.coerce.number().nonnegative(),
+  qty: z.coerce.number().int().positive(),
+  variant: z.object({
+    color: z.string().trim().optional().default(''),
+    size: z.string().trim().optional().default(''),
+  }).nullable().optional(),
+});
+
+const CHANNEL_LABELS = {
+  whatsapp: 'WhatsApp',
+  presencial: 'Venta presencial',
+  otro: 'Venta externa',
+};
+
+const createManualSchema = z.object({
+  customer: z.object({
+    fullName: z.string().trim().min(1),
+    email: z.string().trim().optional().default(''),
+    phone: z.string().trim().optional().default(''),
+    address: z.string().trim().optional().default(''),
+    city: z.string().trim().optional().default(''),
+    province: z.string().trim().optional().default(''),
+    zip: z.string().trim().optional().default(''),
+  }),
+  items: z.array(manualItemSchema).min(1),
+  shipping: z.coerce.number().nonnegative().optional().default(0),
+  channel: z.enum(['whatsapp', 'presencial', 'otro']).optional().default('otro'),
+  fulfillmentStatus: z.enum(['created', 'processing', 'shipped', 'delivered', 'cancelled']).optional().default('created'),
+  note: z.string().max(2000).optional().default(''),
+});
+
 const messageSchema = z.object({
   text: z.string().min(1).max(2000),
 });
@@ -112,6 +147,66 @@ async function list(req, res, next) {
       unreadBuyerMessages: unreadBuyerMessages(o),
     }));
     res.json({ items });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// Carga manual de una venta hecha por fuera de la web (WhatsApp, en persona,
+// etc.). El admin elige los productos/cantidades y precios a mano; queda
+// registrada como cualquier otra orden (stock, reportes, historial), pero con
+// payment.provider = 'manual' para distinguirla de las ventas online.
+async function create(req, res, next) {
+  try {
+    const body = createManualSchema.parse(req.body);
+    const now = new Date().toISOString();
+    const id = await nextOrderId('manual');
+
+    const items = body.items.map((item, idx) => {
+      const variant = item.variant && (item.variant.color || item.variant.size)
+        ? { color: item.variant.color || '', size: item.variant.size || '' }
+        : null;
+      const itemId = variant ? `${item.productId}__${variant.color}__${variant.size}` : `${item.productId}__manual-${idx}`;
+
+      return {
+        id: itemId,
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        variant,
+      };
+    });
+
+    const subtotal = items.reduce((acc, i) => acc + i.price * i.qty, 0);
+    const shipping = body.shipping;
+    const total = subtotal + shipping;
+    const channelLabel = CHANNEL_LABELS[body.channel] || CHANNEL_LABELS.otro;
+
+    const order = {
+      id,
+      createdAt: now,
+      updatedAt: now,
+      userId: null,
+      customer: body.customer,
+      items,
+      totals: { subtotal, shipping, total },
+      note: body.note,
+      payment: {
+        provider: 'manual',
+        status: 'approved',
+        statusDetail: `Carga manual (${channelLabel}) por ${req.user?.username || 'admin'}`,
+        paymentId: null,
+        preferenceId: null,
+      },
+      fulfillmentStatus: body.fulfillmentStatus,
+      tokenTtlDays: GUEST_TTL_DAYS,
+      accessTokens: [],
+      messages: [],
+    };
+
+    await upsertOrder(order);
+    res.status(201).json(order);
   } catch (err) {
     next(err);
   }
@@ -272,6 +367,7 @@ async function postMessage(req, res, next) {
 
 module.exports = {
   list,
+  create,
   inbox,
   getById,
   patchFulfillment,

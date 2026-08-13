@@ -4,8 +4,15 @@ import { Link as RouterLink } from "react-router-dom";
 import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
+import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Paper from "@mui/material/Paper";
 import Select from "@mui/material/Select";
@@ -15,19 +22,30 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import DescriptionIcon from "@mui/icons-material/Description";
 
 import { apiFetch, buildApiUrl } from "../../api/http.js";
 import { STORAGE_KEYS } from "../../branding/brand.js";
+import { useProducts } from "../../hooks/useProducts.js";
+import { getMinPrice } from "../../utils/pricing.js";
 
 const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
   currency: "ARS",
   maximumFractionDigits: 0,
 });
+
+const CHANNEL_OPTIONS = [
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "presencial", label: "Venta presencial" },
+  { value: "otro", label: "Otra venta externa" },
+];
 
 function estadoLabel(value) {
   const map = {
@@ -50,7 +68,12 @@ function estadoColor(value) {
 }
 
 function paymentLabel(payment = {}) {
-  const provider = payment.provider === "bank_transfer" ? "Transferencia" : payment.provider === "mercadopago" ? "MercadoPago" : "—";
+  const providerMap = {
+    bank_transfer: "Transferencia",
+    mercadopago: "MercadoPago",
+    manual: "Carga manual",
+  };
+  const provider = providerMap[payment.provider] || "—";
   const statusMap = {
     created: "creada",
     pending: "pendiente",
@@ -84,10 +107,411 @@ function buildProofFileName(order) {
   return `${order.id}-${original}${hasExtension ? "" : ".pdf"}`;
 }
 
+function makeEmptyManualOrder() {
+  return {
+    fullName: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    province: "",
+    zip: "",
+    channel: "whatsapp",
+    fulfillmentStatus: "created",
+    shipping: 0,
+    note: "",
+  };
+}
+
+function ManualOrderDialog({ open, onClose, onCreated }) {
+  const { products } = useProducts();
+
+  const [form, setForm] = useState(makeEmptyManualOrder());
+  const [items, setItems] = useState([]);
+  const [pickerProductId, setPickerProductId] = useState("");
+  const [pickerVariantKey, setPickerVariantKey] = useState("");
+  const [pickerPrice, setPickerPrice] = useState(0);
+  const [pickerQty, setPickerQty] = useState(1);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setForm(makeEmptyManualOrder());
+    setItems([]);
+    setPickerProductId("");
+    setPickerVariantKey("");
+    setPickerPrice(0);
+    setPickerQty(1);
+    setError("");
+  }, [open]);
+
+  const pickerProduct = useMemo(
+    () => products.find((p) => p.id === pickerProductId) || null,
+    [products, pickerProductId]
+  );
+
+  const pickerVariants = pickerProduct?.variants ?? [];
+
+  const onPickProduct = (productId) => {
+    setPickerProductId(productId);
+    const product = products.find((p) => p.id === productId);
+    if (product?.variants?.length) {
+      const first = product.variants[0];
+      setPickerVariantKey(`${first.color}__${first.size}`);
+      setPickerPrice(Number(first.price) || 0);
+    } else {
+      setPickerVariantKey("");
+      setPickerPrice(getMinPrice(product));
+    }
+    setPickerQty(1);
+  };
+
+  const onPickVariant = (key) => {
+    setPickerVariantKey(key);
+    const variant = pickerVariants.find((v) => `${v.color}__${v.size}` === key);
+    if (variant) setPickerPrice(Number(variant.price) || 0);
+  };
+
+  const addItem = () => {
+    if (!pickerProduct) return;
+    const variant = pickerVariants.length
+      ? pickerVariants.find((v) => `${v.color}__${v.size}` === pickerVariantKey)
+      : null;
+
+    setItems((prev) => [
+      ...prev,
+      {
+        key: `${pickerProduct.id}__${pickerVariantKey}__${prev.length}`,
+        productId: pickerProduct.id,
+        name: pickerProduct.name,
+        price: Number(pickerPrice) || 0,
+        qty: Math.max(1, Number(pickerQty) || 1),
+        variant: variant ? { color: variant.color || "", size: variant.size || "" } : null,
+      },
+    ]);
+
+    setPickerProductId("");
+    setPickerVariantKey("");
+    setPickerPrice(0);
+    setPickerQty(1);
+  };
+
+  const removeItem = (key) => {
+    setItems((prev) => prev.filter((i) => i.key !== key));
+  };
+
+  const subtotal = items.reduce((acc, i) => acc + i.price * i.qty, 0);
+  const total = subtotal + (Number(form.shipping) || 0);
+
+  const canSave = form.fullName.trim() && items.length > 0 && !saving;
+
+  const save = async () => {
+    if (!canSave) return;
+    setSaving(true);
+    setError("");
+
+    try {
+      await apiFetch("/api/admin/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          customer: {
+            fullName: form.fullName.trim(),
+            email: form.email.trim(),
+            phone: form.phone.trim(),
+            address: form.address.trim(),
+            city: form.city.trim(),
+            province: form.province.trim(),
+            zip: form.zip.trim(),
+          },
+          items: items.map((i) => ({
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            qty: i.qty,
+            variant: i.variant,
+          })),
+          shipping: Number(form.shipping) || 0,
+          channel: form.channel,
+          fulfillmentStatus: form.fulfillmentStatus,
+          note: form.note.trim(),
+        }),
+      });
+
+      onCreated();
+      onClose();
+    } catch (e) {
+      setError(e.message || "No se pudo crear la orden");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={saving ? undefined : onClose} maxWidth="md" fullWidth>
+      <DialogTitle sx={{ fontWeight: 900 }}>Nueva orden manual</DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={2.5} sx={{ mt: 0.5 }}>
+          {error ? <Alert severity="error">{error}</Alert> : null}
+
+          <Alert severity="info">
+            Para registrar una venta hecha por fuera de la web (WhatsApp, en persona, etc.). Queda guardada como
+            cualquier otra orden, marcada como "Carga manual".
+          </Alert>
+
+          <Stack spacing={1.5}>
+            <Typography sx={{ fontWeight: 900 }}>Datos del cliente</Typography>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Nombre y apellido"
+                  value={form.fullName}
+                  onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Teléfono"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  label="Email"
+                  value={form.email}
+                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <FormControl fullWidth>
+                  <InputLabel id="manual-channel-label">Canal de venta</InputLabel>
+                  <Select
+                    labelId="manual-channel-label"
+                    label="Canal de venta"
+                    value={form.channel}
+                    onChange={(e) => setForm((f) => ({ ...f, channel: e.target.value }))}
+                  >
+                    {CHANNEL_OPTIONS.map((c) => (
+                      <MenuItem key={c.value} value={c.value}>{c.label}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  label="Dirección"
+                  value={form.address}
+                  onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField
+                  label="Ciudad"
+                  value={form.city}
+                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField
+                  label="Provincia"
+                  value={form.province}
+                  onChange={(e) => setForm((f) => ({ ...f, province: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextField
+                  label="Código postal"
+                  value={form.zip}
+                  onChange={(e) => setForm((f) => ({ ...f, zip: e.target.value }))}
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+          </Stack>
+
+          <Divider />
+
+          <Stack spacing={1.5}>
+            <Typography sx={{ fontWeight: 900 }}>Productos</Typography>
+
+            <Paper variant="outlined" sx={{ p: 1.5 }}>
+              <Grid container spacing={1.5} alignItems="center">
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <FormControl fullWidth size="small">
+                    <InputLabel id="manual-product-label">Producto</InputLabel>
+                    <Select
+                      labelId="manual-product-label"
+                      label="Producto"
+                      value={pickerProductId}
+                      onChange={(e) => onPickProduct(e.target.value)}
+                    >
+                      {products.map((p) => (
+                        <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 3 }}>
+                  <FormControl fullWidth size="small" disabled={!pickerVariants.length}>
+                    <InputLabel id="manual-variant-label">Variante</InputLabel>
+                    <Select
+                      labelId="manual-variant-label"
+                      label="Variante"
+                      value={pickerVariantKey}
+                      onChange={(e) => onPickVariant(e.target.value)}
+                    >
+                      {pickerVariants.map((v) => (
+                        <MenuItem key={`${v.color}__${v.size}`} value={`${v.color}__${v.size}`}>
+                          {v.color} / {v.size}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid size={{ xs: 6, sm: 2 }}>
+                  <TextField
+                    label="Precio"
+                    type="number"
+                    size="small"
+                    value={pickerPrice}
+                    onChange={(e) => setPickerPrice(e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 6, sm: 1.5 }}>
+                  <TextField
+                    label="Cant."
+                    type="number"
+                    size="small"
+                    value={pickerQty}
+                    onChange={(e) => setPickerQty(e.target.value)}
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 1.5 }}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={addItem}
+                    disabled={!pickerProduct}
+                  >
+                    Agregar
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 900 }}>Producto</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }} align="right">Precio</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }} align="right">Cant.</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }} align="right">Subtotal</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }} align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {items.map((i) => (
+                  <TableRow key={i.key}>
+                    <TableCell>
+                      {i.name}
+                      {i.variant ? ` (${i.variant.color} / ${i.variant.size})` : ""}
+                    </TableCell>
+                    <TableCell align="right">{money.format(i.price)}</TableCell>
+                    <TableCell align="right">{i.qty}</TableCell>
+                    <TableCell align="right">{money.format(i.price * i.qty)}</TableCell>
+                    <TableCell align="right">
+                      <IconButton size="small" color="error" onClick={() => removeItem(i.key)}>
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>Sin productos agregados.</TableCell>
+                  </TableRow>
+                ) : null}
+              </TableBody>
+            </Table>
+          </Stack>
+
+          <Divider />
+
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                label="Envío"
+                type="number"
+                value={form.shipping}
+                onChange={(e) => setForm((f) => ({ ...f, shipping: e.target.value }))}
+                fullWidth
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <FormControl fullWidth>
+                <InputLabel id="manual-status-label">Estado</InputLabel>
+                <Select
+                  labelId="manual-status-label"
+                  label="Estado"
+                  value={form.fulfillmentStatus}
+                  onChange={(e) => setForm((f) => ({ ...f, fulfillmentStatus: e.target.value }))}
+                >
+                  <MenuItem value="created">Creada</MenuItem>
+                  <MenuItem value="processing">En preparación</MenuItem>
+                  <MenuItem value="shipped">Enviada</MenuItem>
+                  <MenuItem value="delivered">Entregada</MenuItem>
+                  <MenuItem value="cancelled">Cancelada</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <Stack alignItems="flex-end" justifyContent="center" sx={{ height: "100%" }}>
+                <Typography variant="caption" color="text.secondary">Total</Typography>
+                <Typography sx={{ fontWeight: 900, fontSize: "1.2rem" }}>{money.format(total)}</Typography>
+              </Stack>
+            </Grid>
+          </Grid>
+
+          <TextField
+            label="Nota (opcional)"
+            value={form.note}
+            onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
+            fullWidth
+            multiline
+            minRows={2}
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} disabled={saving}>Cancelar</Button>
+        <Button variant="contained" onClick={save} disabled={!canSave}>
+          {saving ? "Creando..." : "Crear orden"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
 export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState("");
   const [downloadingProofId, setDownloadingProofId] = useState("");
+  const [manualOpen, setManualOpen] = useState(false);
 
   const load = async () => {
     setError("");
@@ -153,9 +577,14 @@ export default function AdminOrders() {
 
   return (
     <Stack spacing={2}>
-      <Typography variant="h4" sx={{ fontWeight: 900 }}>
-        Órdenes
-      </Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={1}>
+        <Typography variant="h4" sx={{ fontWeight: 900 }}>
+          Órdenes
+        </Typography>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setManualOpen(true)}>
+          Nueva orden manual
+        </Button>
+      </Stack>
 
       {error ? <Alert severity="error">{error}</Alert> : null}
 
@@ -249,6 +678,8 @@ export default function AdminOrders() {
           </TableBody>
         </Table>
       </Paper>
+
+      <ManualOrderDialog open={manualOpen} onClose={() => setManualOpen(false)} onCreated={load} />
     </Stack>
   );
 }

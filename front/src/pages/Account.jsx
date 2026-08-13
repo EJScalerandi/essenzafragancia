@@ -35,7 +35,9 @@ function paymentLabel(payment = {}) {
       ? "MercadoPago"
       : payment.provider === "bank_transfer"
         ? "Transferencia"
-        : "Pago";
+        : payment.provider === "manual"
+          ? "Carga manual"
+          : "Pago";
 
   const statusMap = {
     created: "creado",

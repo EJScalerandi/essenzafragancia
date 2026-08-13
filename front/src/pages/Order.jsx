@@ -30,7 +30,7 @@ function estadoLabel(status) {
 }
 
 function paymentLabel(payment = {}) {
-  const provider = payment.provider === "bank_transfer" ? "Transferencia bancaria" : payment.provider === "mercadopago" ? "MercadoPago" : "—";
+  const provider = payment.provider === "bank_transfer" ? "Transferencia bancaria" : payment.provider === "mercadopago" ? "MercadoPago" : payment.provider === "manual" ? "Carga manual" : "—";
   const statusMap = {
     created: "creada",
     pending: "pendiente",
