@@ -257,26 +257,29 @@ export default function Checkout() {
 
   const isEmpty = items.length === 0;
 
+  // El email solo se pide/exige a invitados (sin cuenta): siempre si eligen
+  // transferencia bancaria, o si tildan "crear cuenta". Un comprador logueado
+  // ya tiene su email guardado en el perfil.
+  const showEmail = !buyerUser && (paymentMethod === "bank_transfer" || createAccount);
+
   const canSubmit = useMemo(() => {
     if (isEmpty || submitting || buyerBooting || loadingProof) return false;
     if (paymentMethod === "bank_transfer" && bankTransfer.enabled === false) return false;
     if (paymentMethod === "mercadopago" && mp.enabled === false) return false;
     if (paymentMethod === "chat_whatsapp" && chatPayment.enabled === false) return false;
 
-    if (!form.fullName.trim()) return false;
+    // Nombre y teléfono son obligatorios siempre, para cualquier forma de pago.
+    if (!form.fullName.trim() || !form.phone.trim()) return false;
 
-    // Email/teléfono/dirección solo son obligatorios si el comprador
-    // elige crear una cuenta (ver bloque "Cuenta" del formulario).
-    if (!buyerUser && createAccount) {
-      const accountFieldsOk =
-        form.email.trim() &&
-        form.phone.trim() &&
-        form.address.trim() &&
-        form.city.trim() &&
-        form.province.trim() &&
-        form.zip.trim();
+    if (!buyerUser) {
+      const needsEmail = paymentMethod === "bank_transfer" || createAccount;
+      if (needsEmail && !form.email.trim()) return false;
 
-      return Boolean(accountFieldsOk) && password.trim().length >= 6;
+      if (createAccount) {
+        const accountFieldsOk =
+          form.address.trim() && form.city.trim() && form.province.trim() && form.zip.trim();
+        return Boolean(accountFieldsOk) && password.trim().length >= 6;
+      }
     }
 
     return true;
@@ -483,6 +486,24 @@ export default function Checkout() {
                     <Grid size={{ xs: 12 }}>
                       <TextField label="Nombre y apellido" value={form.fullName} onChange={onChange("fullName")} fullWidth required />
                     </Grid>
+
+                    <Grid size={{ xs: 12, sm: showEmail ? 6 : 12 }}>
+                      <TextField label="Teléfono" value={form.phone} onChange={onChange("phone")} fullWidth required />
+                    </Grid>
+
+                    {showEmail && (
+                      <Grid size={{ xs: 12, sm: 6 }}>
+                        <TextField
+                          label="Email"
+                          value={form.email}
+                          onChange={onChange("email")}
+                          type="email"
+                          fullWidth
+                          required
+                          helperText="Te enviaremos por email el enlace privado para comunicarte."
+                        />
+                      </Grid>
+                    )}
                   </Grid>
                 </Box>
 
@@ -501,22 +522,6 @@ export default function Checkout() {
                     {createAccount ? (
                       <Stack spacing={2} sx={{ mt: 1 }}>
                         <Grid container spacing={2}>
-                          <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField
-                              label="Email"
-                              value={form.email}
-                              onChange={onChange("email")}
-                              type="email"
-                              fullWidth
-                              required
-                              helperText="Te enviaremos por email el enlace privado para comunicarte."
-                            />
-                          </Grid>
-
-                          <Grid size={{ xs: 12, sm: 6 }}>
-                            <TextField label="Teléfono" value={form.phone} onChange={onChange("phone")} fullWidth required />
-                          </Grid>
-
                           <Grid size={{ xs: 12 }}>
                             <TextField label="Dirección" value={form.address} onChange={onChange("address")} fullWidth required />
                           </Grid>
@@ -556,10 +561,21 @@ export default function Checkout() {
 
                   <Stack spacing={1.25}>
                     <PaymentOption
+                      selected={paymentMethod === "chat_whatsapp"}
+                      disabled={chatPayment.enabled === false}
+                      icon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
+                      title="Chatea con nosotros"
+                      subtitle={chatPayment.subtitle}
+                      onClick={() => setPaymentMethod("chat_whatsapp")}
+                    >
+                      <Alert severity="warning">{chatPayment.warning}</Alert>
+                    </PaymentOption>
+
+                    <PaymentOption
                       selected={paymentMethod === "mercadopago"}
                       disabled={mp.enabled === false}
                       icon={<PaymentLogo src={mercadopagoLogo} alt="Mercado Pago" maxHeight={32} maxWidth={116} mp />}
-                      title="Mercado Pago"
+                      title="MercadoPago y Tarjetas de Crédito/Débito"
                       subtitle="Vas a pagar en la web oficial de Mercado Pago. La compra se crea cuando el pago vuelve aprobado."
                       onClick={() => setPaymentMethod("mercadopago")}
                     >
@@ -596,17 +612,6 @@ export default function Checkout() {
                       <Alert severity="info">
                         Los datos bancarios se muestran al confirmar la compra, junto con la carga del comprobante.
                       </Alert>
-                    </PaymentOption>
-
-                    <PaymentOption
-                      selected={paymentMethod === "chat_whatsapp"}
-                      disabled={chatPayment.enabled === false}
-                      icon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
-                      title="Chatea con nosotros"
-                      subtitle={chatPayment.subtitle}
-                      onClick={() => setPaymentMethod("chat_whatsapp")}
-                    >
-                      <Alert severity="warning">{chatPayment.warning}</Alert>
                     </PaymentOption>
                   </Stack>
                 </Box>

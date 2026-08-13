@@ -20,13 +20,13 @@ const itemSchema = z.object({
   }).nullable().optional(),
 });
 
-// Solo el nombre es obligatorio en el checkout. El resto de los datos del
-// comprador (email, teléfono, dirección) solo se piden/exigen si tilda
-// "crear cuenta" (ver el .superRefine más abajo).
+// Nombre y teléfono son obligatorios siempre (cualquier forma de pago). El
+// resto de los datos del comprador (email, dirección) solo se piden/exigen
+// si tilda "crear cuenta" (ver el .superRefine más abajo).
 const customerSchema = z.object({
   fullName: z.string().trim().min(1),
   email: z.union([z.literal(''), z.string().trim().email()]).optional().default(''),
-  phone: z.string().trim().optional().default(''),
+  phone: z.string().trim().min(5, 'El teléfono es obligatorio'),
   address: z.string().trim().optional().default(''),
   city: z.string().trim().optional().default(''),
   province: z.string().trim().optional().default(''),
@@ -44,7 +44,7 @@ const createCheckoutSchema = z.object({
   ),
 }).superRefine((data, ctx) => {
   if (!data.createAccount) return;
-  const required = ['email', 'phone', 'address', 'city', 'province', 'zip'];
+  const required = ['email', 'address', 'city', 'province', 'zip'];
   for (const field of required) {
     if (!data.customer[field]) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customer', field], message: 'Requerido para crear cuenta' });

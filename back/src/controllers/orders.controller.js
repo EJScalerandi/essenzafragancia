@@ -24,13 +24,14 @@ const itemSchema = z.object({
   variant: z.object({ color: z.string(), size: z.string() }).nullable().optional(),
 });
 
-// Solo el nombre es obligatorio en el checkout. El resto de los datos del
-// comprador (email, teléfono, dirección) solo se piden/exigen si tilda
-// "crear cuenta" (ver el .superRefine de createSchema más abajo).
+// Este endpoint solo se usa para transferencia bancaria (MercadoPago se
+// rechaza más abajo con InvalidFlow), así que nombre, teléfono y email
+// siempre son obligatorios. Dirección/ciudad/etc. solo se piden/exigen si
+// el comprador tilda "crear cuenta" (ver el .superRefine de createSchema).
 const customerSchema = z.object({
   fullName: z.string().min(1),
-  email: z.union([z.literal(''), z.string().email()]).optional().default(''),
-  phone: z.string().optional().default(''),
+  email: z.string().email(),
+  phone: z.string().min(5),
   address: z.string().optional().default(''),
   city: z.string().optional().default(''),
   province: z.string().optional().default(''),
@@ -54,7 +55,7 @@ const createSchema = z.object({
   password: z.string().min(6).optional(),
 }).superRefine((data, ctx) => {
   if (!data.createAccount) return;
-  const required = ['email', 'phone', 'address', 'city', 'province', 'zip'];
+  const required = ['address', 'city', 'province', 'zip'];
   for (const field of required) {
     if (!data.customer[field]) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['customer', field], message: 'Requerido para crear cuenta' });
