@@ -25,7 +25,11 @@ const PAYMENT_PROOF_ALLOWED_MIME_TYPES = new Set([
 
 function calcTotals(items) {
   const subtotal = items.reduce((acc, i) => acc + Number(i.price || 0) * Number(i.qty || 1), 0);
-  const shipping = subtotal >= 80000 ? 0 : 5000;
+  // El envío no se cobra acá: se coordina aparte por WhatsApp según el
+  // destino (VIA CARGO), como se aclara en toda la web. Antes se sumaba un
+  // cargo fijo automático de $5000 cuando el subtotal no llegaba a $80000,
+  // que no coincidía con lo que se mostraba en el resumen del checkout.
+  const shipping = 0;
   const total = subtotal + shipping;
   return { subtotal, shipping, total };
 }
