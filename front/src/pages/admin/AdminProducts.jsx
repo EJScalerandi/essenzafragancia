@@ -43,6 +43,40 @@ function normalizeTags(text) {
     .filter(Boolean);
 }
 
+const FIELD_LABELS = {
+  id: "ID",
+  name: "Nombre",
+  category: "Categoría",
+  description: "Descripción",
+  image: "Imagen principal",
+  alternateImage: "Imagen alternativa",
+  basePrice: "Precio base",
+  tags: "Tags",
+  variants: "Variantes",
+  color: "Color",
+  size: "Talle",
+  price: "Precio",
+  stock: "Stock",
+};
+
+function describeIssuePath(path = []) {
+  // Ej: ["variants", 0, "color"] -> "Variante 1 — Color"
+  if (path[0] === "variants" && typeof path[1] === "number") {
+    const field = FIELD_LABELS[path[2]] || path[2] || "campo";
+    return `Variante ${path[1] + 1} — ${field}`;
+  }
+  const key = path[path.length - 1];
+  return FIELD_LABELS[key] || key || "Campo";
+}
+
+function describeSaveError(err) {
+  const issues = err?.data?.issues;
+  if (Array.isArray(issues) && issues.length) {
+    return issues.map((i) => `${describeIssuePath(i.path)}: falta o es inválido`).join(" · ");
+  }
+  return err?.message || "No se pudo guardar el producto";
+}
+
 function makeEmptyProduct() {
   return {
     id: "",
@@ -169,9 +203,18 @@ export default function AdminProducts() {
     const product = buildProduct();
     if (!product.id) return setError("El ID es obligatorio (ej: p-010).");
     if (!product.name) return setError("El nombre es obligatorio.");
+    if (!product.category) return setError("La categoría es obligatoria.");
+    if (!product.description) return setError("La descripción es obligatoria.");
+    if (!product.variants?.length) return setError("Agregá al menos una variante.");
+    const badVariant = product.variants.find((v) => !v.color || !v.size);
+    if (badVariant) return setError("Todas las variantes necesitan color y talle completos.");
 
-    await upsertProduct(product);
-    setOpen(false);
+    try {
+      await upsertProduct(product);
+      setOpen(false);
+    } catch (e) {
+      setError(describeSaveError(e));
+    }
   };
 
   const saveBeforeUploadIfNeeded = async () => {
@@ -217,7 +260,7 @@ export default function AdminProducts() {
 
       await refresh();
     } catch (e) {
-      setError(e.message || "No se pudo subir la imagen");
+      setError(describeSaveError(e));
     } finally {
       setUploading("");
       if (mainInputRef.current) mainInputRef.current.value = "";
