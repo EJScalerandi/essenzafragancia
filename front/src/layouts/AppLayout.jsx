@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link as RouterLink, Outlet, NavLink as RouterNavLink } from "react-router-dom";
+import { Link as RouterLink, Outlet, NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 
 import AppBar from "@mui/material/AppBar";
 import Avatar from "@mui/material/Avatar";
@@ -37,6 +37,8 @@ import { resolveMediaUrl } from "../api/http.js";
 import { BRAND } from "../branding/brand.js";
 import { useCart } from "../context/CartContext.jsx";
 import { useStore } from "../context/StoreContext.jsx";
+import { useAccessoryUpsell } from "../hooks/useAccessoryUpsell.js";
+import AccessoryUpsellDialog from "../components/AccessoryUpsellDialog.jsx";
 import BackgroundMusic from "../components/BackgroundMusic.jsx";
 import WelcomePopup from "../components/WelcomePopup.jsx";
 
@@ -177,7 +179,7 @@ function FooterIconLink({ href, label, icon }) {
   );
 }
 
-function CartDropdownContent({ onClose }) {
+function CartDropdownContent({ onClose, onCheckout }) {
   const { items, total, clear, addItem, removeOne, deleteItem } = useCart();
 
   return (
@@ -308,7 +310,7 @@ function CartDropdownContent({ onClose }) {
               <Button component={RouterLink} to="/cart" variant="outlined" onClick={onClose} fullWidth>
                 Ver carrito
               </Button>
-              <Button component={RouterLink} to="/checkout" variant="contained" onClick={onClose} fullWidth>
+              <Button variant="contained" onClick={onCheckout} fullWidth>
                 Comprar
               </Button>
             </Stack>
@@ -370,8 +372,10 @@ function BrandMark({ storeName }) {
 export default function AppLayout() {
   const { count } = useCart();
   const { settings } = useStore();
+  const navigate = useNavigate();
   const [cartOpen, setCartOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const upsell = useAccessoryUpsell();
 
   const contactLinks = settings.contactLinks || {};
   const footerLinks = [
@@ -383,6 +387,14 @@ export default function AppLayout() {
 
   const closeMenu = () => setMenuOpen(false);
   const closeCart = () => setCartOpen(false);
+
+  // Se cierra el mini-carrito y, recién ahí, se pregunta por accesorios
+  // sugeridos antes de ir al checkout (el diálogo vive fuera del dropdown
+  // para no desmontarse cuando el Collapse se cierra).
+  const goToCheckoutFromCart = () => {
+    closeCart();
+    upsell.goOrPrompt(() => navigate("/checkout"));
+  };
 
   return (
     <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -479,7 +491,7 @@ export default function AppLayout() {
           {/* Cart dropdown */}
           <Collapse in={cartOpen} timeout="auto" unmountOnExit>
             <Box sx={{ px: { xs: 1.5, sm: 2.5 }, pb: 2 }}>
-              <CartDropdownContent onClose={closeCart} />
+              <CartDropdownContent onClose={closeCart} onCheckout={goToCheckoutFromCart} />
             </Box>
           </Collapse>
         </Container>
@@ -572,6 +584,13 @@ export default function AppLayout() {
 
       <BackgroundMusic />
       <WelcomePopup />
+      <AccessoryUpsellDialog
+        open={upsell.open}
+        items={upsell.suggestedAccessories}
+        onAdd={upsell.addItem}
+        onCancel={upsell.cancel}
+        onConfirm={upsell.confirm}
+      />
     </Box>
   );
 }
