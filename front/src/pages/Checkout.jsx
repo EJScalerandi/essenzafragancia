@@ -327,7 +327,7 @@ export default function Checkout() {
   };
 
   const goToCreatedOrder = (targetUrl) => {
-    sessionStorage.setItem("karolin_active_order_success_message", "Su comprobante se cargó exitosamente.");
+    sessionStorage.setItem("essenza_fragancia_order_success_message", "Su comprobante se cargó exitosamente.");
     navigate(targetUrl, { replace: true });
     window.setTimeout(() => clear(), 0);
   };

@@ -32,8 +32,8 @@ function escapeHtml(s) {
 }
 
 function getBranding() {
-  const storeName = process.env.EMAIL_BRAND_NAME || process.env.STORE_NAME || 'Karolin Active';
-  const brandColor = process.env.EMAIL_BRAND_COLOR || '#111111';
+  const storeName = process.env.EMAIL_BRAND_NAME || process.env.STORE_NAME || 'Essenza Fragancia';
+  const brandColor = process.env.EMAIL_BRAND_COLOR || '#1d1612';
   const supportEmail = process.env.EMAIL_SUPPORT || '';
   return { storeName, brandColor, supportEmail };
 }

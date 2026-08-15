@@ -13,7 +13,7 @@ function splitName(fullName = '') {
   return { name: parts.slice(0, -1).join(' '), surname: parts.at(-1) };
 }
 
-function normalizePublicUrl(value, fallback = 'https://karolinactive.vercel.app') {
+function normalizePublicUrl(value, fallback = 'https://www.essenzafragances.com.ar') {
   let raw = String(value || fallback || '').trim();
 
   // Render/Vercel vars sometimes get pasted with wrapping quotes or spaces.
@@ -80,7 +80,7 @@ async function createPreference({ draft, webhookUrl, frontendBaseUrl }) {
 
   const backUrls = buildBackUrls({ frontendBaseUrl, draftId: draft.id });
   const cleanWebhookUrl = webhookUrl
-    ? normalizePublicUrl(webhookUrl, 'https://karolinactive.onrender.com/api/payments/mp/webhook')
+    ? normalizePublicUrl(webhookUrl, 'https://essenzafragancia.onrender.com/api/payments/mp/webhook')
     : undefined;
 
   const customer = draft.customer || {};
@@ -104,9 +104,9 @@ async function createPreference({ draft, webhookUrl, frontendBaseUrl }) {
     },
     metadata: {
       checkout_draft_id: draft.id,
-      store: 'karolin_active',
+      store: 'essenza_fragancia',
     },
-    statement_descriptor: 'KAROLIN ACTIVE',
+    statement_descriptor: 'ESSENZA FRAGANCES',
   };
 
   console.log('[mp] back_urls', body.back_urls);
