@@ -3,6 +3,7 @@ const { authRequired, adminRequired } = require('../middlewares/auth');
 
 const adminProducts = require('../controllers/adminProducts.controller');
 const adminOrders = require('../controllers/adminOrders.controller');
+const adminPush = require('../controllers/adminPush.controller');
 const store = require('../controllers/store.controller');
 
 const router = express.Router();
@@ -27,6 +28,11 @@ router.patch('/orders/:id/payment/verify-bank-transfer', adminOrders.verifyBankT
 // Order messages (private, admin)
 router.get('/orders/:id/messages', adminOrders.listMessages);
 router.post('/orders/:id/messages', adminOrders.postMessage);
+
+// Push notifications (notificación de venta en el celular del admin)
+router.get('/push/public-key', adminPush.publicKey);
+router.post('/push/subscribe', adminPush.subscribe);
+router.post('/push/unsubscribe', adminPush.unsubscribe);
 
 // Store settings
 router.patch('/store/settings', store.patchSettings);

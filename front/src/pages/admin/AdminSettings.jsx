@@ -23,11 +23,13 @@ import AddIcon from "@mui/icons-material/Add";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import WavingHandIcon from "@mui/icons-material/WavingHand";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 
 import { buildApiUrl } from "../../api/http.js";
+import { getCurrentSubscription, isPushSupported, subscribeToPush, unsubscribeFromPush } from "../../utils/push.js";
 import {
   DEFAULT_CONTACT_LINKS,
   DEFAULT_PAYMENTS,
@@ -93,6 +95,9 @@ export default function AdminSettings() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
   useEffect(() => {
     setName(settings.storeName || "");
     setMusicDraft(normalizeMusicSettings(settings.music));
@@ -101,6 +106,33 @@ export default function AdminSettings() {
     setPopupDraft(normalizeWelcomePopup(settings.welcomePopup || DEFAULT_WELCOME_POPUP));
     setPromotionsDraft(normalizePromotions(settings.promotions || DEFAULT_PROMOTIONS));
   }, [settings]);
+
+  useEffect(() => {
+    if (!isPushSupported()) return;
+    getCurrentSubscription()
+      .then((sub) => setPushSubscribed(!!sub))
+      .catch(() => setPushSubscribed(false));
+  }, []);
+
+  const onTogglePush = async () => {
+    setError("");
+    setPushLoading(true);
+    try {
+      if (pushSubscribed) {
+        await unsubscribeFromPush();
+        setPushSubscribed(false);
+        showSuccess("Notificaciones desactivadas");
+      } else {
+        await subscribeToPush();
+        setPushSubscribed(true);
+        showSuccess("Notificaciones activadas");
+      }
+    } catch (err) {
+      setError(err.message || "No se pudieron configurar las notificaciones");
+    } finally {
+      setPushLoading(false);
+    }
+  };
 
   const showSuccess = (message) => {
     setStatus(message);
@@ -392,6 +424,47 @@ export default function AdminSettings() {
           </Paper>
         </Grid>
       </Grid>
+
+      <Paper sx={{ p: { xs: 2, sm: 2.5 } }}>
+        <Stack spacing={2}>
+          <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={1}>
+            <Box>
+              <Typography sx={{ fontWeight: 950 }}>Notificaciones de venta en el celular</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Activá esto desde el iPhone del admin para recibir un aviso apenas entra una venta nueva.
+              </Typography>
+            </Box>
+            <Chip
+              icon={<NotificationsActiveIcon />}
+              color={pushSubscribed ? "success" : "default"}
+              label={pushSubscribed ? "Activadas en este dispositivo" : "Desactivadas en este dispositivo"}
+            />
+          </Stack>
+
+          {!isPushSupported() ? (
+            <Alert severity="warning">
+              Este navegador no soporta notificaciones. En iPhone: abrí esta página con Safari, tocá "Compartir" y luego
+              "Agregar a pantalla de inicio". Después abrí la app desde el ícono que quedó en la pantalla de inicio (no
+              desde Safari) y volvé a esta sección para activarlas.
+            </Alert>
+          ) : (
+            <Alert severity="info">
+              En iPhone tenés que instalar esta web primero: Safari → botón "Compartir" → "Agregar a pantalla de inicio".
+              Abrí la app desde ese ícono y tocá el botón de abajo para activar las notificaciones en este dispositivo.
+            </Alert>
+          )}
+
+          <Button
+            variant="contained"
+            color={pushSubscribed ? "error" : "primary"}
+            onClick={onTogglePush}
+            disabled={pushLoading || !isPushSupported()}
+            sx={{ alignSelf: "flex-start" }}
+          >
+            {pushSubscribed ? "Desactivar notificaciones en este dispositivo" : "Activar notificaciones en este dispositivo"}
+          </Button>
+        </Stack>
+      </Paper>
 
       <Paper sx={{ p: { xs: 2, sm: 2.5 } }}>
         <Stack spacing={2}>

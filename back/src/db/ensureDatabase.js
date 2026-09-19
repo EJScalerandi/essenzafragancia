@@ -165,6 +165,19 @@ async function ensureMpCheckoutDrafts() {
   await query('create index if not exists mp_checkout_drafts_order_id_idx on public.mp_checkout_drafts (order_id)');
 }
 
+async function ensurePushSubscriptionsTable() {
+  await query(`
+    create table if not exists public.push_subscriptions (
+      id bigserial primary key,
+      endpoint text not null unique,
+      p256dh text not null,
+      auth text not null,
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now()
+    )
+  `);
+}
+
 async function ensureDatabase() {
   await query('select 1');
 
@@ -212,6 +225,7 @@ async function ensureDatabase() {
   await ensureOrderSequences();
   await ensureOrderPaymentProofColumns();
   await ensureMpCheckoutDrafts();
+  await ensurePushSubscriptionsTable();
   await seedIfEmpty();
 }
 

@@ -10,6 +10,7 @@ const {
 const { getUserByEmail, getUserById, upsertUser } = require('./users.service');
 const { upsertOrder } = require('./orders.service');
 const { nextOrderId } = require('./orderNumber.service');
+const { notifyNewSale } = require('./push.service');
 
 const GUEST_TTL_DAYS = Number(process.env.ORDER_TOKEN_TTL_GUEST_DAYS || 90);
 const ACCOUNT_TTL_DAYS = Number(process.env.ORDER_TOKEN_TTL_ACCOUNT_DAYS || 0);
@@ -322,6 +323,16 @@ async function createOrderFromCheckout({ body, paymentMethod, reqUser = null, pa
   }
 
   await upsertOrder(order);
+
+  try {
+    await notifyNewSale({
+      orderId: order.id,
+      customerName: order.customer.fullName,
+      total: order.totals.total,
+    });
+  } catch (e) {
+    console.error('[PUSH] Failed to notify new sale:', e.message || e);
+  }
 
   if (order.customer.email) {
     try {
