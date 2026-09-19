@@ -57,6 +57,7 @@ const FIELD_LABELS = {
   size: "Talle",
   price: "Precio",
   stock: "Stock",
+  compareAtPrice: "Precio anterior (tachado)",
 };
 
 function describeIssuePath(path = []) {
@@ -87,7 +88,7 @@ function makeEmptyProduct() {
     alternateImage: "",
     basePrice: 0,
     tags: [],
-    variants: [{ color: "Negro", size: "Única", price: 0, stock: 0 }],
+    variants: [{ color: "Negro", size: "Única", price: 0, stock: 0, compareAtPrice: 0 }],
   };
 }
 
@@ -155,7 +156,7 @@ export default function AdminProducts() {
   const addVariant = () => {
     setForm((f) => ({
       ...f,
-      variants: [...(f.variants ?? []), { color: "", size: "", price: 0, stock: 0 }],
+      variants: [...(f.variants ?? []), { color: "", size: "", price: 0, stock: 0, compareAtPrice: 0 }],
     }));
   };
 
@@ -193,6 +194,7 @@ export default function AdminProducts() {
         size: String(v.size || "").trim(),
         price: Number(v.price) || 0,
         stock: Number(v.stock) || 0,
+        compareAtPrice: Number(v.compareAtPrice) || 0,
       })),
     };
   };
@@ -488,6 +490,10 @@ export default function AdminProducts() {
               </Button>
             </Stack>
 
+            <Alert severity="info">
+              "Precio anterior (tachado)" es opcional: dejalo vacío o en 0 para no mostrar oferta. Si ponés un valor mayor al precio, en la tienda se va a ver ese precio tachado y "ahora" el precio real.
+            </Alert>
+
             <Paper variant="outlined" sx={{ p: 1 }}>
               <Table size="small">
                 <TableHead>
@@ -495,6 +501,7 @@ export default function AdminProducts() {
                     <TableCell sx={{ fontWeight: 900 }}>Color</TableCell>
                     <TableCell sx={{ fontWeight: 900 }}>Talle</TableCell>
                     <TableCell sx={{ fontWeight: 900 }} align="right">Precio</TableCell>
+                    <TableCell sx={{ fontWeight: 900 }} align="right">Precio anterior (tachado)</TableCell>
                     <TableCell sx={{ fontWeight: 900 }} align="right">Stock</TableCell>
                     <TableCell sx={{ fontWeight: 900 }} align="right"></TableCell>
                   </TableRow>
@@ -512,6 +519,17 @@ export default function AdminProducts() {
                         <TextField value={v.price} onChange={(e) => updateVariant(idx, "price", Number(e.target.value))} size="small" type="number" sx={{ width: 120 }} />
                       </TableCell>
                       <TableCell align="right">
+                        <TextField
+                          value={v.compareAtPrice || ""}
+                          onChange={(e) => updateVariant(idx, "compareAtPrice", Number(e.target.value))}
+                          size="small"
+                          type="number"
+                          placeholder="Sin oferta"
+                          helperText={Number(v.compareAtPrice) > Number(v.price) ? "Se mostrará tachado" : ""}
+                          sx={{ width: 140 }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
                         <TextField value={v.stock} onChange={(e) => updateVariant(idx, "stock", Number(e.target.value))} size="small" type="number" sx={{ width: 110 }} />
                       </TableCell>
                       <TableCell align="right">
@@ -524,7 +542,7 @@ export default function AdminProducts() {
 
                   {(form.variants ?? []).length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5}>Sin variantes</TableCell>
+                      <TableCell colSpan={6}>Sin variantes</TableCell>
                     </TableRow>
                   ) : null}
                 </TableBody>
